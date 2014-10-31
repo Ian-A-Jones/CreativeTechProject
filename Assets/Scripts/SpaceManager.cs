@@ -17,7 +17,7 @@ public class SpaceManager : MonoBehaviour
 	{
 		bodies = new List<GameObject>();
 
-		bodies.Add(Instantiate(body, new Vector3(0, 0.0f, 0.0f), Quaternion.identity) as GameObject);
+		bodies.Add(Instantiate(body, new Vector3(0, 0.0f, 0.0f), Quaternion.Euler(90,0,0)) as GameObject);
 		bodies[bodies.Count-1].name = "body" + (bodies.Count-1);
 		//bodies.Add(Instantiate(body, new Vector3(-5, 0.0f, 0.0f), Quaternion.identity) as GameObject);
 		//bodies.Add(Instantiate(body, new Vector3(0, 5f, 0.0f), Quaternion.identity) as GameObject);
@@ -53,7 +53,7 @@ public class SpaceManager : MonoBehaviour
 					Debug.LogError("J is null");
 				}
 
-				if(firstBody.transform.position != secondBody.transform.position)
+				if(firstBody.name != secondBody.name)
 				{	
 					//Find vector from first body to second body
 					Vector3 deltaPosition = secondBody.transform.position - firstBody.transform.position;
@@ -100,7 +100,7 @@ public class SpaceManager : MonoBehaviour
 				body.rigidbody.mass = randomMass;
 			}
 
-			body.transform.localScale *= (randomMass * 50f);
+			body.transform.localScale *= (randomMass * 25f);
 
 		}
 	}

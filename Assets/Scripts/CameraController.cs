@@ -7,6 +7,8 @@ public class CameraController : MonoBehaviour
 
 	public GameObject target;
 
+	public int zoomSpeed;
+
 	float x, y;
 	float zoom = 10;
 
@@ -16,7 +18,6 @@ public class CameraController : MonoBehaviour
 	void Start () 
 	{
 		targetVector  = DEFAULTTARGETVECTOR;
-		transform.position = Vector3.zero;
 	}
 
 	void OnGUI()
@@ -99,26 +100,42 @@ public class CameraController : MonoBehaviour
 				transform.rotation = rotation;
 				transform.position = position;
 			}
+
 		}
 
-//		if(Input.GetMouseButtonDown(0))
-//		{
-//			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-//			RaycastHit hit;
-//			
-//			if(Physics.Raycast(ray, out hit))
-//			{
-//				if(target != GameObject.Find(hit.transform.name))
-//				{
-//					target = GameObject.Find(hit.transform.name);
-//					zoom += target.transform.localScale.z;
-//				}
-//			}
-//			else
-//			{
-//				target = null;
-//			}
-//		}
+		if(Input.GetMouseButtonDown(0))
+		{
+			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+			RaycastHit hit;
+			
+			if(Physics.Raycast(ray, out hit))
+			{
+				if(target != GameObject.Find(hit.transform.name))
+				{
+					target = GameObject.Find(hit.transform.name);
+				}
+			}
+			else
+			{
+				target = null;
+			}
+		}
+
+		if(Input.GetAxis("Mouse ScrollWheel") != 0)
+		{
+			zoom -= Input.GetAxis("Mouse ScrollWheel") * zoomSpeed * Time.deltaTime;
+
+			transform.position = new Vector3(transform.position.x,transform.position.y, zoom);
+		}
+
+		if(target != null)
+		{
+			transform.position = target.transform.position + new Vector3(0, 0, -zoom);
+		}
+		else
+		{
+			transform.position = new Vector3(0,0, - zoom);
+		}
 
 	}
 }
