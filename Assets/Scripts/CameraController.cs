@@ -6,13 +6,15 @@ public class CameraController : MonoBehaviour
 	Vector3 DEFAULTTARGETVECTOR = new Vector3(0,0,10);
 
 	public GameObject target;
-
+	public SpaceManager sManager;
 	public int zoomSpeed;
 
 	float x, y;
 	float zoom = 10;
 
 	Vector3 targetVector;
+
+	bool choosingSpawn;
 
 	// Use this for initialization
 	void Start () 
@@ -31,11 +33,57 @@ public class CameraController : MonoBehaviour
 			GUI.Label(new Rect(5,60,150,90), "Velocity" + target.rigidbody.velocity.ToString());
 
 		}
-	}
 
+		if(choosingSpawn)
+		{
+			GUI.Label(new Rect(Screen.width/2 - 50, 20, 100, 20), "Select spawn");
+		}
+	}
+	
 	// Update is called once per frame
 	void Update () 
 	{
+		if(Input.GetMouseButtonDown(0))
+		{
+			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+			RaycastHit hit;
+			
+			if(Physics.Raycast(ray, out hit))
+			{	
+				if(choosingSpawn)
+				{
+					Vector3 spawn = hit.point;
+					spawn +=  hit.normal * 2;
+
+					sManager.addPlayer(spawn);
+
+					choosingSpawn = false;
+				}
+				else
+				{
+					if(target != GameObject.Find(hit.transform.name))
+					{
+						target = GameObject.Find(hit.transform.name);
+					}
+				}
+			}
+			else
+			{
+				target = null;
+			}
+		}
+
+		if(Input.GetMouseButton(1))
+		{
+			
+			x += Input.GetAxis("Mouse X");
+			y -= Input.GetAxis("Mouse Y");
+			
+			Quaternion rotation = Quaternion.Euler(y, x, 0);
+			
+			transform.rotation = rotation;
+		}
+
 		if(Input.GetMouseButton(2))
 		{
 			x -= Input.GetAxis("Mouse X") ;
@@ -67,59 +115,39 @@ public class CameraController : MonoBehaviour
 			}
 
 		}
-		if(Input.GetMouseButton(1))
+
+		if(Input.GetKeyDown(KeyCode.Space))
 		{
-
-			x += Input.GetAxis("Mouse X");
-			y -= Input.GetAxis("Mouse Y");
-						
-			Quaternion rotation = Quaternion.Euler(y, x, 0);
-			
-			transform.rotation = rotation;
-		}
-
-		if(Input.GetKeyDown(KeyCode.LeftAlt))
-	   	{
-			targetVector = transform.position + Vector3.forward*-10;
-		}
-
-		if(Input.GetKey(KeyCode.LeftAlt))
-		{
-			if(target == null)
+			if(choosingSpawn)
 			{
-				x += Input.GetAxis("Mouse X");
-				y -= Input.GetAxis("Mouse Y");
-
-				Quaternion rotation = Quaternion.Euler(y, x, 0);
-				Vector3 position = rotation * (new Vector3(0,0,10) + targetVector);
-
-//				var rotation = Quaternion.Euler(y, x, 0);
-//				var position = rotation * Vector3(0.0, 0.0, -distance) + target.position;
-
-				
-				transform.rotation = rotation;
-				transform.position = position;
-			}
-
-		}
-
-		if(Input.GetMouseButtonDown(0))
-		{
-			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-			RaycastHit hit;
-			
-			if(Physics.Raycast(ray, out hit))
-			{
-				if(target != GameObject.Find(hit.transform.name))
-				{
-					target = GameObject.Find(hit.transform.name);
-				}
+				choosingSpawn = false;
 			}
 			else
 			{
-				target = null;
+				choosingSpawn = true;
 			}
 		}
+
+		//TODO:Make Orbit
+//		if(Input.GetKey(KeyCode.LeftAlt))
+//		{
+//			if(target == null)
+//			{
+//				x += Input.GetAxis("Mouse X");
+//				y -= Input.GetAxis("Mouse Y");
+//
+//				Quaternion rotation = Quaternion.Euler(y, x, 0);
+//				Vector3 position = rotation * (new Vector3(0,0,10) + targetVector);
+//
+//				var rotation = Quaternion.Euler(y, x, 0);
+//				var position = rotation * Vector3(0.0, 0.0, -distance) + target.position;
+//
+//				
+//				transform.rotation = rotation;
+//				transform.position = position;
+//			}
+//
+//		}
 
 		if(Input.GetAxis("Mouse ScrollWheel") != 0)
 		{

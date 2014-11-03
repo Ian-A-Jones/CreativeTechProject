@@ -8,16 +8,22 @@ public class SpaceManager : MonoBehaviour
 	public int startingObjects = 5;
 	//Prefab used for spawning planets
 	public GameObject body;
-
+	public GameObject player;
+	
 	List<GameObject> bodies;
 
 	int gForceAmp = 50;
+
+
+	GameObject closestPlanetToPlayer = null;
+	//Relative distance of closes planet to player
+	float relDistPlanetToPlayer = 0;
 	// Use this for initialization
 	void Start () 
 	{
 		bodies = new List<GameObject>();
 
-		bodies.Add(Instantiate(body, new Vector3(0, 0.0f, 0.0f), Quaternion.Euler(90,0,0)) as GameObject);
+		bodies.Add(Instantiate(body, new Vector3(0, 0.0f, 0.0f), Quaternion.identity) as GameObject);
 		bodies[bodies.Count-1].name = "body" + (bodies.Count-1);
 		//bodies.Add(Instantiate(body, new Vector3(-5, 0.0f, 0.0f), Quaternion.identity) as GameObject);
 		//bodies.Add(Instantiate(body, new Vector3(0, 5f, 0.0f), Quaternion.identity) as GameObject);
@@ -32,14 +38,33 @@ public class SpaceManager : MonoBehaviour
 
 	}
 
+	void Update()
+	{
+		if(closestPlanetToPlayer != null)
+		{
+			if(bodies[0].GetComponent<RotateAround>().closetPlanet != closestPlanetToPlayer)
+			{
+				Debug.Log("Setting closest Planet");
+				bodies[0].GetComponent<RotateAround>().closetPlanet = closestPlanetToPlayer;
+			}
+		}
+	}
 	// Update is called once per frame
 	void FixedUpdate () 
 	{
-		if(bodies == null)
-		{
-			Debug.LogError("List is null");
-		}
+		//unoptimisedFDTG();
+		optimisedFDTG();
 
+		if(Input.GetKeyDown(KeyCode.Q))
+		{
+			bodies.Add(Instantiate(body, new Vector3(5, 5, 5), Quaternion.identity) as GameObject);
+			bodies[bodies.Count -1].rigidbody.AddForce(new Vector3(200, 0, 0));
+			bodies[bodies.Count -1].name = "body" + (bodies.Count-1);
+		}
+	}
+
+	void unoptimisedFDTG()
+	{
 		foreach(GameObject firstBody in bodies)
 		{
 			if(firstBody == null)
@@ -52,37 +77,99 @@ public class SpaceManager : MonoBehaviour
 				{
 					Debug.LogError("J is null");
 				}
-
-				if(firstBody.name != secondBody.name)
+				
+				if(firstBody.transform.position != secondBody.transform.position)
 				{	
 					//Find vector from first body to second body
 					Vector3 deltaPosition = secondBody.transform.position - firstBody.transform.position;
-					Debug.Log ("deltaPosition: " + deltaPosition.ToString());
-
+					//Debug.Log ("deltaPosition: " + deltaPosition.ToString());
+					
 					Vector3 direction = Vector3.Normalize(deltaPosition);
-					Debug.Log("direction: " + direction.ToString());
+					//Debug.Log("direction: " + direction.ToString());
 
-					Debug.DrawRay(firstBody.transform.position, direction, Color.red);
-
+					Vector3 edgeOfFirstBody = direction * (firstBody.transform.localScale.x/2);
+					Debug.DrawRay(firstBody.transform.position + edgeOfFirstBody, direction, Color.red);
+					
 					float sqrRadius = deltaPosition.sqrMagnitude;
-					Debug.Log ("Square Radius: " + sqrRadius);
-
+					//Debug.Log ("Square Radius: " + sqrRadius);
+					
 					float forcedueToGrav = (firstBody.rigidbody.mass * secondBody.rigidbody.mass)/sqrRadius;
-					Debug.Log ("Force Due To Gravity: " + forcedueToGrav * gForceAmp);
-
+					//Debug.Log ("Force Due To Gravity: " + forcedueToGrav * gForceAmp);
+					
 					firstBody.rigidbody.AddForce(direction * forcedueToGrav * gForceAmp);
-
+										
 				}
 			}
 		}
+	}
 
-		if(Input.GetKeyDown(KeyCode.Q))
+	void optimisedFDTG()
+	{
+		if(bodies == null)
 		{
-			bodies.Add(Instantiate(body, new Vector3(5, 5, 5), Quaternion.identity) as GameObject);
-			bodies[bodies.Count -1].rigidbody.AddForce(new Vector3(200, 0, 0));
-			bodies[bodies.Count -1].name = "body" + (bodies.Count-1);
+			Debug.LogError("List is null");
 		}
+		
+		for(int fB = 0; fB < bodies.Count ; fB++)
+		{
+			if(bodies[fB] == null)
+			{
+				Debug.LogError("bodies[fB] is null");
+			}		
+			
+			for(int sB = 0; sB < bodies.Count ; sB++)
+			{
+				if(bodies[sB] == null)
+				{
+					Debug.LogError("bodies[sB] is null");
+				}
+				
+				if(fB < sB)
+				{	
+					//Find vector from first body to second body
+					Vector3 deltaPosition = bodies[sB].transform.position - bodies[fB].transform.position;
+					//Debug.Log ("deltaPosition: " + deltaPosition.ToString());
 
+					Vector3 direction = Vector3.Normalize(deltaPosition);
+					//Debug.Log("direction: " + direction.ToString());
+					
+					//Find the position of the edge of the body to draw the ray
+					Vector3 edgeOfFirstBody = direction * (bodies[fB].transform.localScale.x/2);
+					Debug.DrawRay(bodies[fB].transform.position + edgeOfFirstBody, direction, Color.red);
+					
+					//Find the position of the edge of the body for the second body;
+					Vector3 edgeOfSecondBody = direction * (bodies[sB].transform.localScale.x/2);
+					Debug.DrawRay(bodies[sB].transform.position + edgeOfSecondBody, direction, Color.red);
+					
+					float relDistance = deltaPosition.sqrMagnitude;
+					//Debug.Log ("Square Radius: " + sqrRadius);
+
+					if(bodies[fB].tag == "Player")
+					{
+						if((closestPlanetToPlayer == null || bodies[sB].name != closestPlanetToPlayer.name) &&
+						   (relDistance < relDistPlanetToPlayer || relDistPlanetToPlayer == 0))
+						{
+							relDistPlanetToPlayer = relDistance;
+							closestPlanetToPlayer = bodies[sB];
+							Debug.Log (bodies[sB].name);
+						}
+					}
+					
+					float forcedueToGrav = (bodies[fB].rigidbody.mass * bodies[sB].rigidbody.mass)/relDistance;
+					//Debug.Log ("Force Due To Gravity: " + forcedueToGrav * gForceAmp);
+					
+					bodies[fB].rigidbody.AddForce(direction * forcedueToGrav * gForceAmp);
+					bodies[sB].rigidbody.AddForce(direction * -1 * forcedueToGrav * gForceAmp);
+														
+				}
+			}
+		}
+	}
+
+	public void addPlayer(Vector3 spawn)
+	{
+		bodies.Insert(0,(Instantiate(player, spawn, Quaternion.identity) as GameObject));
+		bodies[0].AddComponent("RotateAround");
 	}
 
 	void shuffleMass()
@@ -100,7 +187,7 @@ public class SpaceManager : MonoBehaviour
 				body.rigidbody.mass = randomMass;
 			}
 
-			body.transform.localScale *= (randomMass * 25f);
+			body.transform.localScale *= (randomMass * 10f);
 
 		}
 	}
