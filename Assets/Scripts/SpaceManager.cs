@@ -5,17 +5,27 @@ using System.Collections.Generic;
 public class SpaceManager : MonoBehaviour 
 {
 	//How many objects you want to start with
-	public int startingObjects = 5;
+	public int startingObjects;
+	//How far planets should spawn
+	public float range;
+	//how strong gravity should be
+	public int gForceAmp = 50;
 	//Prefab used for spawning planets
 	public GameObject body;
 	public GameObject player;
 	
 	List<GameObject> bodies;
-
-	int gForceAmp = 50;
-
+	
+	//Variables for Inter-planetary interaction
+	Vector3 deltaPosition;
+	Vector3 direction;	
+	Vector3 edgeOfFirstBody;
+	Vector3 edgeOfSecondBody;	
+	float relDistance;
+	float forceDueToGrav;
 
 	GameObject closestPlanetToPlayer = null;
+	float clossetPlanetMass;
 	//Relative distance of closes planet to player
 	float relDistPlanetToPlayer = 0;
 	// Use this for initialization
@@ -28,13 +38,20 @@ public class SpaceManager : MonoBehaviour
 		//bodies.Add(Instantiate(body, new Vector3(-5, 0.0f, 0.0f), Quaternion.identity) as GameObject);
 		//bodies.Add(Instantiate(body, new Vector3(0, 5f, 0.0f), Quaternion.identity) as GameObject);
 
-//		for(int i = 0; i < startingObjects; i++)
-//		{
-//			CBodies.Add(Instantiate(CBody, new Vector3(i * 5, 0.0f, 0.0f), Quaternion.identity) as GameObject);
-//			Debug.Log("Object Added");
-//		}
+		for(int i = 0; i < startingObjects; i++)
+		{
+			float randX = Random.Range(-range, range);
+			float randY = Random.Range(-range, range);
+			float randZ = Random.Range(-range, range);
+
+			bodies.Add(Instantiate(body, new Vector3(randX, randY, randZ), Quaternion.identity) as GameObject);
+			bodies[bodies.Count-1].name = "body" + (bodies.Count-1);
+			Debug.Log("Object Added");
+		}
 
 		shuffleMass();
+
+		setMass(0, 10);
 
 	}
 
@@ -42,10 +59,11 @@ public class SpaceManager : MonoBehaviour
 	{
 		if(closestPlanetToPlayer != null)
 		{
-			if(bodies[0].GetComponent<RotateAround>().closetPlanet != closestPlanetToPlayer)
+			if(bodies[0].GetComponent<PlayerInput>().closetPlanet != closestPlanetToPlayer)
 			{
 				Debug.Log("Setting closest Planet");
-				bodies[0].GetComponent<RotateAround>().closetPlanet = closestPlanetToPlayer;
+				bodies[0].GetComponent<PlayerInput>().closetPlanet = closestPlanetToPlayer;
+				bodies[0].GetComponent<PlayerInput>().closestPlanetMass = clossetPlanetMass;
 			}
 		}
 	}
@@ -63,45 +81,45 @@ public class SpaceManager : MonoBehaviour
 		}
 	}
 
-	void unoptimisedFDTG()
-	{
-		foreach(GameObject firstBody in bodies)
-		{
-			if(firstBody == null)
-			{
-				Debug.LogError("I is null");
-			}
-			foreach(GameObject secondBody in bodies)
-			{
-				if(secondBody == null)
-				{
-					Debug.LogError("J is null");
-				}
-				
-				if(firstBody.transform.position != secondBody.transform.position)
-				{	
-					//Find vector from first body to second body
-					Vector3 deltaPosition = secondBody.transform.position - firstBody.transform.position;
-					//Debug.Log ("deltaPosition: " + deltaPosition.ToString());
-					
-					Vector3 direction = Vector3.Normalize(deltaPosition);
-					//Debug.Log("direction: " + direction.ToString());
-
-					Vector3 edgeOfFirstBody = direction * (firstBody.transform.localScale.x/2);
-					Debug.DrawRay(firstBody.transform.position + edgeOfFirstBody, direction, Color.red);
-					
-					float sqrRadius = deltaPosition.sqrMagnitude;
-					//Debug.Log ("Square Radius: " + sqrRadius);
-					
-					float forcedueToGrav = (firstBody.rigidbody.mass * secondBody.rigidbody.mass)/sqrRadius;
-					//Debug.Log ("Force Due To Gravity: " + forcedueToGrav * gForceAmp);
-					
-					firstBody.rigidbody.AddForce(direction * forcedueToGrav * gForceAmp);
-										
-				}
-			}
-		}
-	}
+//	void unoptimisedFDTG()
+//	{
+//		foreach(GameObject firstBody in bodies)
+//		{
+//			if(firstBody == null)
+//			{
+//				Debug.LogError("I is null");
+//			}
+//			foreach(GameObject secondBody in bodies)
+//			{
+//				if(secondBody == null)
+//				{
+//					Debug.LogError("J is null");
+//				}
+//				
+//				if(firstBody.transform.position != secondBody.transform.position)
+//				{	
+//					//Find vector from first body to second body
+//					deltaPosition = secondBody.transform.position - firstBody.transform.position;
+//					//Debug.Log ("deltaPosition: " + deltaPosition.ToString());
+//					
+//					direction = Vector3.Normalize(deltaPosition);
+//					//Debug.Log("direction: " + direction.ToString());
+//
+//					edgeOfFirstBody = direction * (firstBody.transform.localScale.x/2);
+//					Debug.DrawRay(firstBody.transform.position + edgeOfFirstBody, direction, Color.red);
+//					
+//					relDistance = deltaPosition.sqrMagnitude;
+//					//Debug.Log ("Square Radius: " + relDistance);
+//					
+//					forceDueToGrav = (firstBody.rigidbody.mass * secondBody.rigidbody.mass)/relDistance;
+//					//Debug.Log ("Force Due To Gravity: " + forcedueToGrav * gForceAmp);
+//					
+//					firstBody.rigidbody.AddForce(direction * forceDueToGrav * gForceAmp);
+//										
+//				}
+//			}
+//		}
+//	}
 
 	void optimisedFDTG()
 	{
@@ -116,7 +134,9 @@ public class SpaceManager : MonoBehaviour
 			{
 				Debug.LogError("bodies[fB] is null");
 			}		
-			
+
+			bodies[fB].rigidbody.mass = Mathf.Clamp(bodies[fB].rigidbody.mass, 0, 10);
+
 			for(int sB = 0; sB < bodies.Count ; sB++)
 			{
 				if(bodies[sB] == null)
@@ -127,22 +147,22 @@ public class SpaceManager : MonoBehaviour
 				if(fB < sB)
 				{	
 					//Find vector from first body to second body
-					Vector3 deltaPosition = bodies[sB].transform.position - bodies[fB].transform.position;
+					deltaPosition = bodies[sB].transform.position - bodies[fB].transform.position;
 					//Debug.Log ("deltaPosition: " + deltaPosition.ToString());
 
-					Vector3 direction = Vector3.Normalize(deltaPosition);
+					direction = Vector3.Normalize(deltaPosition);
 					//Debug.Log("direction: " + direction.ToString());
 					
 					//Find the position of the edge of the body to draw the ray
-					Vector3 edgeOfFirstBody = direction * (bodies[fB].transform.localScale.x/2);
+					edgeOfFirstBody = direction * (bodies[fB].transform.localScale.x/2);
 					Debug.DrawRay(bodies[fB].transform.position + edgeOfFirstBody, direction, Color.red);
 					
 					//Find the position of the edge of the body for the second body;
-					Vector3 edgeOfSecondBody = direction * (bodies[sB].transform.localScale.x/2);
+					edgeOfSecondBody = direction * (bodies[sB].transform.localScale.x/2);
 					Debug.DrawRay(bodies[sB].transform.position + edgeOfSecondBody, direction, Color.red);
 					
-					float relDistance = deltaPosition.sqrMagnitude;
-					//Debug.Log ("Square Radius: " + sqrRadius);
+					relDistance = deltaPosition.sqrMagnitude;
+					//Debug.Log ("Square Radius: " + relDistance);
 
 					if(bodies[fB].tag == "Player")
 					{
@@ -151,15 +171,15 @@ public class SpaceManager : MonoBehaviour
 						{
 							relDistPlanetToPlayer = relDistance;
 							closestPlanetToPlayer = bodies[sB];
+							clossetPlanetMass = bodies[sB].rigidbody.mass;
 							Debug.Log (bodies[sB].name);
 						}
 					}
 					
-					float forcedueToGrav = (bodies[fB].rigidbody.mass * bodies[sB].rigidbody.mass)/relDistance;
-					//Debug.Log ("Force Due To Gravity: " + forcedueToGrav * gForceAmp);
+					forceDueToGrav = (bodies[fB].rigidbody.mass * bodies[sB].rigidbody.mass)/(relDistance/10);
 					
-					bodies[fB].rigidbody.AddForce(direction * forcedueToGrav * gForceAmp);
-					bodies[sB].rigidbody.AddForce(direction * -1 * forcedueToGrav * gForceAmp);
+					bodies[fB].rigidbody.AddForce(direction * forceDueToGrav * gForceAmp);
+					bodies[sB].rigidbody.AddForce(direction * -1 * forceDueToGrav * gForceAmp);
 														
 				}
 			}
@@ -169,7 +189,6 @@ public class SpaceManager : MonoBehaviour
 	public void addPlayer(Vector3 spawn)
 	{
 		bodies.Insert(0,(Instantiate(player, spawn, Quaternion.identity) as GameObject));
-		bodies[0].AddComponent("RotateAround");
 	}
 
 	void shuffleMass()
@@ -187,9 +206,16 @@ public class SpaceManager : MonoBehaviour
 				body.rigidbody.mass = randomMass;
 			}
 
-			body.transform.localScale *= (randomMass * 10f);
+			body.transform.localScale = new Vector3((randomMass * 10f), (randomMass * 10f), (randomMass * 10f));
 
 		}
+	}
+
+	void setMass(int BodiesMassToSet, float massToSet)
+	{
+		bodies[BodiesMassToSet].rigidbody.mass = massToSet;
+
+		bodies[BodiesMassToSet].transform.localScale = new Vector3((massToSet * 10f), (massToSet * 10f), (massToSet * 10f));
 	}
 
 	public void removeBodyAt(Vector3 position)

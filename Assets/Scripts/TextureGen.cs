@@ -18,7 +18,7 @@ public class TextureGen : MonoBehaviour
 		planetTexture = new Texture2D(width, height, TextureFormat.RGBA32, false);
 		planetTexture.name = "Proc Texture";
 		GetComponent<MeshRenderer>().material.mainTexture = planetTexture;
-		planetTexture.wrapMode = TextureWrapMode.Repeat;
+		planetTexture.wrapMode = TextureWrapMode.Clamp;
 		if(randomXYStart)
 		{
 			xStart = Random.Range (0.0f, 102400.0f);
