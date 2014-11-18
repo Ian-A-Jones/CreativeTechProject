@@ -8,7 +8,11 @@ public class PlayerInput : MonoBehaviour
 
 	bool onGround = false;
 
+	bool leftDown, rightDown, forwardDown, backDown;
+
 	float x;
+
+	float moveForce = 0.015f;
 	// Use this for initialization
 	void Start () 
 	{
@@ -34,38 +38,64 @@ public class PlayerInput : MonoBehaviour
 				Debug.DrawLine (this.transform.position, hit.point, Color.cyan);
 				transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
 			}
+
+			if (Input.GetKey(KeyCode.A)&& onGround)
+			{
+				leftDown = true;
+			}
+			
+			if (Input.GetKey(KeyCode.D)&& onGround)
+			{
+				rightDown = true;
+			}
+			
+			if(Input.GetKey(KeyCode.W) && onGround)
+			{
+				forwardDown = true;
+			}
+
+			if(Input.GetKey(KeyCode.S) && onGround)
+			{
+				backDown = true;
+			} 
 		}
 
 		x += Input.GetAxis("Mouse X");
 		transform.Rotate(0, x, 0, Space.Self);
-		Debug.Log (x);
 	}
 	// Update is called once per frame
 	void FixedUpdate () 
 	{
 		if(onGround)
 		{
-			if(Input.GetKey(KeyCode.W))
+			if(leftDown)
 			{
-				rigidbody.AddRelativeForce(Vector3.forward * Time.deltaTime * 0.03f);
-				Debug.Log (rigidbody.velocity.x);
+				rigidbody.AddRelativeForce(Vector3.left * moveForce * Time.deltaTime);
+				leftDown = false;
 			}
 
-			if(Input.GetKey(KeyCode.S))
+			if(rightDown)
 			{
-				rigidbody.AddRelativeForce(Vector3.back * Time.deltaTime * 0.03f);
+				rigidbody.AddRelativeForce(Vector3.right * moveForce * Time.deltaTime);
+				rightDown = false;
 			}
 
-			if(Input.GetKey(KeyCode.A))
+			if(forwardDown)
 			{
-				rigidbody.AddRelativeForce(Vector3.left * Time.deltaTime * 0.03f);
+				rigidbody.AddRelativeForce(Vector3.forward * moveForce * Time.deltaTime);
+				forwardDown = false;
 			}
 
-			if(Input.GetKey(KeyCode.D))
+			if(backDown)
 			{
-				rigidbody.AddRelativeForce(Vector3.right * Time.deltaTime * 0.03f);
+				rigidbody.AddRelativeForce(Vector3.back * moveForce * Time.deltaTime);
+				backDown = false;
 			}
 		}
+
+		rigidbody.velocity = Vector3.ClampMagnitude(rigidbody.velocity, 20);
+
+		Debug.Log (rigidbody.velocity);
 
 	}
 

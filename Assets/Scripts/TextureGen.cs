@@ -41,7 +41,7 @@ public class TextureGen : MonoBehaviour
 
 		planetTexture.Apply();
 
-		Texture2D norm = planetTexture;
+		//Texture2D norm = planetTexture;
 		renderer.material.SetTexture("_BumpMap", planetTexture);
 
 	}
