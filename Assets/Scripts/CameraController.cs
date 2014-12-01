@@ -10,7 +10,7 @@ public class CameraController : MonoBehaviour
 	public int zoomSpeed;
 
 	float x, y;
-	float zoom = 10;
+	float zoom = 100;
 
 	Vector3 targetVector;
 
@@ -26,12 +26,15 @@ public class CameraController : MonoBehaviour
 	{
 		if(target != null)
 		{
+			GUI.BeginGroup(new Rect(0,Screen.height/2 - 45,160,90));
+
 			GUI.Box(new Rect(0,0,160,90), "Target Info");
 			GUI.Label(new Rect(5,15,100,90), "Name: " + target.name);
 			GUI.Label(new Rect(5,30,100,90), "Size: " + target.transform.localScale.x.ToString("0.00"));
 			GUI.Label(new Rect(5,45,100,90), "Mass: " + target.rigidbody.mass.ToString("0.00"));
 			GUI.Label(new Rect(5,60,150,90), "Velocity" + target.rigidbody.velocity.ToString());
 
+			GUI.EndGroup();
 		}
 
 		if(choosingSpawn)
@@ -53,9 +56,10 @@ public class CameraController : MonoBehaviour
 				if(choosingSpawn)
 				{
 					Vector3 spawn = hit.point;
-					spawn +=  hit.normal * 2;
+					spawn +=  hit.normal * 1.5f;
 
-					sManager.addPlayer(spawn);
+					sManager.addPlayerSim(spawn);
+//					sManager.addPlayerCam(GameObject.Find(hit.transform.name), spawn);
 
 					choosingSpawn = false;
 				}

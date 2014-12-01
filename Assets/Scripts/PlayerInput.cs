@@ -12,7 +12,7 @@ public class PlayerInput : MonoBehaviour
 
 	float x;
 
-	float moveForce = 0.015f;
+	float moveForce = 50f;
 	// Use this for initialization
 	void Start () 
 	{
@@ -93,7 +93,7 @@ public class PlayerInput : MonoBehaviour
 			}
 		}
 
-		rigidbody.velocity = Vector3.ClampMagnitude(rigidbody.velocity, 20);
+		rigidbody.velocity = Vector3.ClampMagnitude(rigidbody.velocity, 15);
 
 		Debug.Log (rigidbody.velocity);
 

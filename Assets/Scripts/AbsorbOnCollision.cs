@@ -5,6 +5,9 @@ public class AbsorbOnCollision : MonoBehaviour
 {
 	public SpaceManager spaceManagerObj;
 	public SpaceManager spaceManagerScript;
+
+	public static bool absorbOn;
+
 	// Use this for initialization
 	void Start () 
 	{
@@ -18,15 +21,12 @@ public class AbsorbOnCollision : MonoBehaviour
 		
 	}
 
-	void OnCollisionEnter(Collision collision)
+	void collisionLogic(Collision collision)
 	{
-//		Debug.Log(this.tag);
-//		Debug.Log(collision.gameObject.tag);
-
-		if(this.tag != "Player" && collision.gameObject.tag != "Player")
+		if(this.tag != "Player" && collision.gameObject.tag != "Player" && absorbOn)
 		{
 			Debug.Log("Bodies collieded");
-
+			
 			float otherBMass = collision.rigidbody.mass;
 			if(this.rigidbody.mass >= otherBMass)
 			{
@@ -40,9 +40,19 @@ public class AbsorbOnCollision : MonoBehaviour
 				Debug.Log ("that larger than this");
 				collision.rigidbody.mass += this.rigidbody.mass;
 				collision.transform.localScale += new Vector3(this.rigidbody.mass, this.rigidbody.mass, this.rigidbody.mass);
-					
+				
 				spaceManagerScript.removeBodyAt(transform.position);
 			}
 		}
+	}
+
+	void OnCollisionEnter(Collision collision)
+	{
+		collisionLogic(collision);
+	}
+
+	void OnCollisionStay(Collision collision)
+	{
+		collisionLogic(collision);
 	}
 }
