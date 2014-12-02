@@ -139,6 +139,7 @@ public class CameraController : MonoBehaviour
 			else
 			{
 				sManager.removePlayer();
+				playerActive = false;
 			}
 		}
 

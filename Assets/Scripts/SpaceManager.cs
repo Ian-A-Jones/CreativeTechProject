@@ -434,36 +434,40 @@ public class SpaceManager : MonoBehaviour
 					deltaPosition = bodies[sB].transform.position - bodies[fB].transform.position;
 					//Debug.Log ("deltaPosition: " + deltaPosition.ToString());
 
-					direction = Vector3.Normalize(deltaPosition);
-					//Debug.Log("direction: " + direction.ToString());
-					
-					//Find the position of the edge of the body to draw the ray
-					edgeOfFirstBody = direction * (bodies[fB].transform.localScale.x/2);
-					//Debug.DrawRay(bodies[fB].transform.position + edgeOfFirstBody, direction, Color.red);
-					
-					//Find the position of the edge of the body for the second body;
-					edgeOfSecondBody = direction * (bodies[sB].transform.localScale.x/2);
-					//Debug.DrawRay(bodies[sB].transform.position + edgeOfSecondBody, direction, Color.red);
-					
-					relDistance = deltaPosition.sqrMagnitude;
-					//Debug.Log ("Square Radius: " + relDistance);
-
-					if(bodies[fB].tag == "Player")
+					if(deltaPosition.sqrMagnitude > (bodies[fB].transform.localScale.x/2 + bodies[sB].transform.localScale.x/2))
 					{
-						if((closestPlanetToPlayer == null || bodies[sB].name != closestPlanetToPlayer.name) &&
-						   (relDistance < relDistPlanetToPlayer || relDistPlanetToPlayer == 0))
+						direction = Vector3.Normalize(deltaPosition);
+						//Debug.Log("direction: " + direction.ToString());
+						
+						//Find the position of the edge of the body to draw the ray
+						edgeOfFirstBody = direction * (bodies[fB].transform.localScale.x/2);
+						//Debug.DrawRay(bodies[fB].transform.position + edgeOfFirstBody, direction, Color.red);
+						
+						//Find the position of the edge of the body for the second body;
+						edgeOfSecondBody = direction * (bodies[sB].transform.localScale.x/2);
+						//Debug.DrawRay(bodies[sB].transform.position + edgeOfSecondBody, direction, Color.red);
+						
+						relDistance = deltaPosition.sqrMagnitude;
+						//Debug.Log ("Square Radius: " + relDistance);
+
+						if(bodies[fB].tag == "Player")
 						{
-							relDistPlanetToPlayer = relDistance;
-							closestPlanetToPlayer = bodies[sB];
-							clossetPlanetMass = bodies[sB].rigidbody.mass;
-							Debug.Log (bodies[sB].name);
+							if((closestPlanetToPlayer == null || bodies[sB].name != closestPlanetToPlayer.name) &&
+							   (relDistance < relDistPlanetToPlayer || relDistPlanetToPlayer == 0))
+							{
+								relDistPlanetToPlayer = relDistance;
+								closestPlanetToPlayer = bodies[sB];
+								clossetPlanetMass = bodies[sB].rigidbody.mass;
+								Debug.Log (bodies[sB].name);
+							}
 						}
+
+
+						forceDueToGrav = (bodies[fB].rigidbody.mass * bodies[sB].rigidbody.mass)/(relDistance/10);
+
+						bodies[fB].rigidbody.AddForce(direction * forceDueToGrav * gForceAmp);
+						bodies[sB].rigidbody.AddForce(direction * -1 * forceDueToGrav * gForceAmp);
 					}
-					
-					forceDueToGrav = (bodies[fB].rigidbody.mass * bodies[sB].rigidbody.mass)/(relDistance/10);
-					
-					bodies[fB].rigidbody.AddForce(direction * forceDueToGrav * gForceAmp);
-					bodies[sB].rigidbody.AddForce(direction * -1 * forceDueToGrav * gForceAmp);
 														
 				}
 			}
@@ -511,11 +515,11 @@ public class SpaceManager : MonoBehaviour
 
 	void setMass(int BodiesMassToSet, float massToSet)
 	{
-		massToSet = Mathf.Clamp(massToSet, 0, maxMass);
+		massToSet = Mathf.Clamp(massToSet, 1, maxMass);
 
 		bodies[BodiesMassToSet].rigidbody.mass = massToSet;
 
-		bodies[BodiesMassToSet].transform.localScale = new Vector3((bodies[BodiesMassToSet].rigidbody.mass), (massToSet), (massToSet));
+		bodies[BodiesMassToSet].transform.localScale = new Vector3((massToSet), (massToSet), (massToSet));
 	}
 
 	public void removeBodyAt(Vector3 position)
@@ -543,7 +547,14 @@ public class SpaceManager : MonoBehaviour
 	{
 		if(value != "")
 		{
-			return int.Parse(value);
+			if(value.StartsWith("-") && value.Length == 1)
+		  	{
+				return 0;
+			}
+			else
+			{
+				return int.Parse(value);
+			}
 		}
 		else
 		{

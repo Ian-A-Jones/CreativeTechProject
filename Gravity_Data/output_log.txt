@@ -1,0 +1,18 @@
+Initialize engine version: 4.5.5p1 (7c778773db1c)
+GfxDevice: creating device client; threaded=1
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.0]
+    Renderer: NVIDIA GeForce GTX 760 (ID=0x1187)
+    Vendor:   NVIDIA
+    VRAM:     4027 MB
+Begin MonoManager ReloadAssembly
+Platform assembly: D:\Documents\Year 3\CTP\CreativeTechProject\Gravity_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading D:\Documents\Year 3\CTP\CreativeTechProject\Gravity_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: D:\Documents\Year 3\CTP\CreativeTechProject\Gravity_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading D:\Documents\Year 3\CTP\CreativeTechProject\Gravity_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+Platform assembly: D:\Documents\Year 3\CTP\CreativeTechProject\Gravity_Data\Managed\Assembly-UnityScript-firstpass.dll (this message is harmless)
+Loading D:\Documents\Year 3\CTP\CreativeTechProject\Gravity_Data\Managed\Assembly-UnityScript-firstpass.dll into Unity Child Domain
+- Completed reload, in  0.032 seconds
+desktop: 1920x1080 60Hz; virtual: 3600x1080 at 0,0
+<RI> Initializing input.
+<RI> Input initialized.
