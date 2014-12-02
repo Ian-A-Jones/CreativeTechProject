@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 public class SpaceManager : MonoBehaviour 
 {
+	//Maximum masss a body can Have
+	int maxMass = 50;
+
 	//How many objects you want to start with
 	public int planetsToSpawn;
 
@@ -38,8 +41,8 @@ public class SpaceManager : MonoBehaviour
 	bool absorbingOn = false;
 	
 	//Whether user is spawning a planet
-	bool spawningPlanet = true;
-	bool spawningMultPlanets = true;
+	bool spawningPlanet = false;
+	bool spawningMultPlanets = false;
 
 	string spawnButton = "";
 	string spawnMultButton = "";
@@ -48,7 +51,7 @@ public class SpaceManager : MonoBehaviour
 	string spawnPosY = "0";
 	string spawnPosZ = "0";
 
-	string spawnMass = "0";
+	string spawnMass = "1";
 
 	string spawnVelocityX = "0";
 	string spawnVelocityY = "0";
@@ -86,21 +89,7 @@ public class SpaceManager : MonoBehaviour
 	// Use this for initialization
 	void Start () 
 	{
-		Time.timeScale = 0;
-
 		bodies = new List<GameObject>();
-
-//		bodies.Add(Instantiate(body, new Vector3(0, 0.0f, 0.0f), Quaternion.identity) as GameObject);
-//		bodies[bodies.Count-1].name = "body" + (bodies.Count-1);
-////
-//		bodies.Add(Instantiate(body, new Vector3(0, 0.0f, 20f), Quaternion.identity) as GameObject);
-//		bodies[bodies.Count-1].name = "body" + (bodies.Count-1);
-
-		StartCoroutine("spawnBodies");
-
-		//setMass(0, 10);
-
-
 	}
 
 	IEnumerator spawnBodies()
@@ -171,11 +160,42 @@ public class SpaceManager : MonoBehaviour
 		{
 			if(bodies.Count > 0)
 			{
+				foreach(GameObject body in bodies.ToArray())
+				{
+					Destroy(body);
+				}
+
 				bodies.Clear();
 			}
 		}
 
 		AbsorbOnCollision.absorbOn = absorbingOn;
+
+		spawningPositionRef.SetActive(spawningPlanet);
+		spawningVeloctiyRef.SetActive(spawningPlanet);
+		
+		if(spawningPlanet)
+		{
+			spawnPos.x = stringCheck(spawnPosX);
+			spawnPos.y = stringCheck(spawnPosY);
+			spawnPos.z = stringCheck(spawnPosZ);
+			
+			spawningPositionRef.transform.position = spawnPos;
+
+			int scale  = stringCheck(spawnMass);
+
+			spawningPositionRef.transform.localScale = new Vector3(scale, scale, scale);
+
+			spawnVelocity.x = stringCheck(spawnVelocityX);
+			spawnVelocity.y = stringCheck(spawnVelocityY);
+			spawnVelocity.z = stringCheck(spawnVelocityZ);
+			
+			spawningVeloctiyRef.transform.localScale = new Vector3(0.1f, spawnVelocity.magnitude, 0.1f);
+			
+			spawningVeloctiyRef.transform.position = spawnPos + spawnVelocity;
+			
+			spawningVeloctiyRef.transform.rotation = Quaternion.FromToRotation(Vector3.up, spawnVelocity.normalized);
+		}
 	}
 
 	void OnGUI()
@@ -246,6 +266,7 @@ public class SpaceManager : MonoBehaviour
 
 		GUI.Label(new Rect(0, 110, 60, 22), "Mass");
 		spawnMass = GUI.TextField(new Rect(0, 132, 72, 22), spawnMass);
+		GUI.Label (new Rect(76, 132, 16 * sW, 22), "(max Mass : " + maxMass + ")");
 
 		if(GUI.Button(new Rect(0, 154, 120, 22), "Spawn Planet"))
 		{
@@ -305,12 +326,13 @@ public class SpaceManager : MonoBehaviour
 
 		GUI.Label(new Rect(0, 110, 60, 22), "Mass Range");
 		spawnMassRange = GUI.TextField(new Rect(0, 132, 72, 22), spawnMassRange);
+		GUI.Label (new Rect(76, 132, 16 * sW, 22), "(max Mass : " + maxMass + ")");
 		
 		if(GUI.Button(new Rect(0, 154, 120, 22), "Spawn Planets"))
 		{
 			planetsToSpawn = int.Parse(spawnNumberOfPlanets);
 			posRange = int.Parse(spawnPosRange);
-			massRange = int.Parse(spawnMassRange);
+			massRange = Mathf.Clamp(int.Parse(spawnMassRange), 0, maxMass);
 
 			StartCoroutine("spawnBodies");
 		}
@@ -326,13 +348,6 @@ public class SpaceManager : MonoBehaviour
 	{
 		//unoptimisedFDTG();
 		optimisedFDTG();
-
-		if(Input.GetKeyDown(KeyCode.Q))
-		{
-			bodies.Add(Instantiate(body, new Vector3(5, 5, 5), Quaternion.identity) as GameObject);
-			bodies[bodies.Count -1].rigidbody.AddForce(new Vector3(200, 0, 0));
-			bodies[bodies.Count -1].name = "body" + (bodies.Count-1);
-		}
 	}
 
 //	void unoptimisedFDTG()
@@ -388,12 +403,10 @@ public class SpaceManager : MonoBehaviour
 
 		for(int fB = 0; fB < bodies.Count ; fB++)
 		{
-			if(bodies[fB].rigidbody.mass > 50)
+			if(bodies[fB].rigidbody.mass > maxMass)
 			{
-				setMass(fB, 50);
+				setMass(fB, maxMass);
 			}
-
-
 
 			COMPos.x += bodies[fB].rigidbody.mass * bodies[fB].transform.position.x;
 			COMPos.y += bodies[fB].rigidbody.mass * bodies[fB].transform.position.y;
@@ -460,26 +473,12 @@ public class SpaceManager : MonoBehaviour
 		{
 			COMPos /= totalMass;
 
+			CentreOfMassRef.SetActive(true);
 			CentreOfMassRef.transform.position = COMPos;
 		}
-
-		if(spawningPlanet)
+		else
 		{
-			spawnPos.x = stringCheck(spawnPosX);
-			spawnPos.y = stringCheck(spawnPosY);
-			spawnPos.z = stringCheck(spawnPosZ);
-
-			spawningPositionRef.transform.position = spawnPos;
-
-			spawnVelocity.x = stringCheck(spawnVelocityX);
-			spawnVelocity.y = stringCheck(spawnVelocityY);
-			spawnVelocity.z = stringCheck(spawnVelocityZ);
-		
-			spawningVeloctiyRef.transform.localScale = new Vector3(0.1f, spawnVelocity.magnitude, 0.1f);
-
-			spawningVeloctiyRef.transform.position = spawnPos + spawnVelocity;
-
-			spawningVeloctiyRef.transform.rotation = Quaternion.FromToRotation(Vector3.up, spawnVelocity.normalized);
+			CentreOfMassRef.SetActive(false);
 		}
 	}
 
@@ -507,14 +506,16 @@ public class SpaceManager : MonoBehaviour
 			bodies[body].rigidbody.mass = randomMass;
 //		}
 
-		bodies[body].transform.localScale = new Vector3((randomMass ), (randomMass ), (randomMass));
+		bodies[body].transform.localScale = new Vector3((randomMass), (randomMass), (randomMass));
 	}
 
 	void setMass(int BodiesMassToSet, float massToSet)
 	{
+		massToSet = Mathf.Clamp(massToSet, 0, maxMass);
+
 		bodies[BodiesMassToSet].rigidbody.mass = massToSet;
 
-		bodies[BodiesMassToSet].transform.localScale = new Vector3((massToSet), (massToSet), (massToSet));
+		bodies[BodiesMassToSet].transform.localScale = new Vector3((bodies[BodiesMassToSet].rigidbody.mass), (massToSet), (massToSet));
 	}
 
 	public void removeBodyAt(Vector3 position)
@@ -528,6 +529,14 @@ public class SpaceManager : MonoBehaviour
 			}
 
 		}
+	}
+
+	public void removePlayer()
+	{
+		Destroy(bodies[0]);
+		bodies.RemoveAt(0);
+
+		closestPlanetToPlayer = null;
 	}
 
 	int stringCheck(string value)

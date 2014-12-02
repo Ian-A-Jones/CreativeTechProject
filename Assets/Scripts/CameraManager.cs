@@ -11,11 +11,12 @@ public class CameraManager : MonoBehaviour
 	// Use this for initialization
 	void Start () 
 	{
+		activeCam = Camera.main.gameObject.name;
 	}
 
 	void OnGUI()
 	{
-		GUI.Label(new Rect(4, 0, 100, 20), "Active Camera: " + activeCam);
+		GUI.Label(new Rect(4, 0, 200, 20), "Active Camera: " + activeCam);
 	}
 	// Update is called once per frame
 	void Update () 
@@ -25,7 +26,7 @@ public class CameraManager : MonoBehaviour
 			freeRoamCam.gameObject.SetActive(true);
 			COMCam.gameObject.SetActive(false);
 
-			activeCam = freeRoamCam.name;
+			activeCam = freeRoamCam.gameObject.name;
 		}
 
 		if(Input.GetKey(KeyCode.Alpha2))
@@ -33,7 +34,7 @@ public class CameraManager : MonoBehaviour
 			COMCam.gameObject.SetActive(true);
 			freeRoamCam.gameObject.SetActive(false);
 
-			activeCam = COMCam.name;
+			activeCam = COMCam.gameObject.name;
 		}
 	}
 }

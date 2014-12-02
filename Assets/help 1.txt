@@ -1,0 +1,49 @@
+Hello and welcome to Universe Sandboxes youunger and less competent cousin.
+
+Controls:
+
+P - toggles pausing of the simulation (Note: you can't unpause the sim when planets are spawning).
+
+R - clears the simulation.
+
+
+1 - Free roam camera.
+2 - Centre of Mass camera.
+
+Free roam camera controls:
+
+	Space - toggle spawning on planet
+
+	Left Mouse click (over planet) -target planet.
+	Left Mouse click (over planet, with spawning player) - spawn on planet.
+	Left Mouse click (over nothing) - untarget planet (if there is a planet target).
+
+	Alt (with target) - Orbit target.
+	Alt (without target) - rotate camera.
+
+Once spawned on a planet:
+
+	W - Forward.
+	A - Left.
+	S - Back.
+	D - Right.
+
+	Mouse control - Look around.
+
+	Space - stop exploring planet.
+
+Centre of Mass camera:
+
+	ALt - Orbits the Centre of mass.
+
+	The mouse scroll wheel zooms in and out for both cameras.
+
+
+GUI Controls:
+
+	The Buttons on the right will toggle the spawning options on and off.
+
+	Toggle absorbing with the button in the bottom left.
+
+
+To bring this info back up press h.

@@ -12,6 +12,8 @@ public class OrbitTargetCamera : MonoBehaviour
 	public float zoom = -10;
 	int zoomSpeed = 200;
 
+	Quaternion rotation;
+
 	// Use this for initialization
 	void Start () 
 	{
@@ -23,12 +25,17 @@ public class OrbitTargetCamera : MonoBehaviour
 	{
 		if(this.enabled)
 		{
-			x -= Input.GetAxis("Mouse X");
-			y -= Input.GetAxis("Mouse Y");
-			
-			Quaternion rotation = Quaternion.Euler(y, x, 0);
-			
-			transform.rotation = rotation;
+
+			if(Input.GetKey(KeyCode.LeftAlt))
+			{
+				x -= Input.GetAxis("Mouse X");
+				y -= Input.GetAxis("Mouse Y");
+				
+				rotation = Quaternion.Euler(y, x, 0);
+				
+				transform.rotation = rotation;
+
+			}
 
 			if(Input.GetAxis("Mouse ScrollWheel") != 0)
 			{
@@ -36,6 +43,7 @@ public class OrbitTargetCamera : MonoBehaviour
 			}
 
 			transform.position = rotation * new Vector3(0.0f, 0.0f, zoom) + target.transform.position;
+
 		}
 
 

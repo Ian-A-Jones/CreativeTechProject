@@ -15,6 +15,9 @@ public class CameraController : MonoBehaviour
 	Vector3 targetVector;
 
 	bool choosingSpawn;
+	bool playerActive;
+
+	Quaternion orbitRotation;
 
 	// Use this for initialization
 	void Start () 
@@ -62,6 +65,7 @@ public class CameraController : MonoBehaviour
 //					sManager.addPlayerCam(GameObject.Find(hit.transform.name), spawn);
 
 					choosingSpawn = false;
+					playerActive = true;
 				}
 				else
 				{
@@ -88,70 +92,66 @@ public class CameraController : MonoBehaviour
 			transform.rotation = rotation;
 		}
 
-		if(Input.GetMouseButton(2))
-		{
-			x -= Input.GetAxis("Mouse X") ;
-			y -= Input.GetAxis("Mouse Y");
-
-			transform.position = new Vector3(x,y,0);
-		}
-		else
-		{
-
-			if(Input.GetKey(KeyCode.W))
-			{
-				rigidbody.AddForce(Vector3.forward * 2);
-			}
-
-			if(Input.GetKey(KeyCode.S))
-			{
-				rigidbody.AddForce(Vector3.back * 2);
-			}
-
-			if(Input.GetKey(KeyCode.A))
-			{
-				rigidbody.AddForce(Vector3.left * 2);
-			}
-
-			if(Input.GetKey(KeyCode.D))
-			{
-				rigidbody.AddForce(Vector3.right * 2);
-			}
-
-		}
-
-		if(Input.GetKeyDown(KeyCode.Space))
-		{
-			if(choosingSpawn)
-			{
-				choosingSpawn = false;
-			}
-			else
-			{
-				choosingSpawn = true;
-			}
-		}
-
-		//TODO:Make Orbit
-//		if(Input.GetKey(KeyCode.LeftAlt))
+//		if(Input.GetMouseButton(2))
 //		{
-//			if(target == null)
+//			x -= Input.GetAxis("Mouse X") ;
+//			y -= Input.GetAxis("Mouse Y");
+//
+//			transform.position = new Vector3(x,y,0);
+//		}
+//		else
+//		{
+//			if(Input.GetKey(KeyCode.W))
 //			{
-//				x += Input.GetAxis("Mouse X");
-//				y -= Input.GetAxis("Mouse Y");
+//				rigidbody.AddForce(Vector3.forward * 2);
+//			}
 //
-//				Quaternion rotation = Quaternion.Euler(y, x, 0);
-//				Vector3 position = rotation * (new Vector3(0,0,10) + targetVector);
+//			if(Input.GetKey(KeyCode.S))
+//			{
+//				rigidbody.AddForce(Vector3.back * 2);
+//			}
 //
-//				var rotation = Quaternion.Euler(y, x, 0);
-//				var position = rotation * Vector3(0.0, 0.0, -distance) + target.position;
+//			if(Input.GetKey(KeyCode.A))
+//			{
+//				rigidbody.AddForce(Vector3.left * 2);
+//			}
 //
-//				
-//				transform.rotation = rotation;
-//				transform.position = position;
+//			if(Input.GetKey(KeyCode.D))
+//			{
+//				rigidbody.AddForce(Vector3.right * 2);
 //			}
 //
 //		}
+
+		if(Input.GetKeyDown(KeyCode.Space))
+		{
+			if(!playerActive)
+			{
+				if(choosingSpawn)
+				{
+					choosingSpawn = false;
+				}
+				else
+				{
+					choosingSpawn = true;
+				}
+			}
+			else
+			{
+				sManager.removePlayer();
+			}
+		}
+
+		if(Input.GetKey(KeyCode.LeftAlt))
+		{
+			x -= Input.GetAxis("Mouse X");
+			y -= Input.GetAxis("Mouse Y");
+			
+			orbitRotation = Quaternion.Euler(y, x, 0);
+			
+			transform.rotation = orbitRotation;
+			
+		}
 
 		if(Input.GetAxis("Mouse ScrollWheel") != 0)
 		{
@@ -162,7 +162,7 @@ public class CameraController : MonoBehaviour
 
 		if(target != null)
 		{
-			transform.position = target.transform.position + new Vector3(0, 0, -zoom);
+			transform.position = transform.rotation * new Vector3(0.0f, 0.0f, -zoom) + target.transform.position;
 		}
 		else
 		{
