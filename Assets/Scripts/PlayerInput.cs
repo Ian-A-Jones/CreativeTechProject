@@ -3,7 +3,7 @@ using System.Collections;
 
 public class PlayerInput : MonoBehaviour 
 {
-	public GameObject closetPlanet;
+	public SpaceObject closetPlanet;
 	public float closestPlanetMass;
 
 	bool onGround = false;

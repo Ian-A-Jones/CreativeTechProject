@@ -4,9 +4,6 @@ using System.Collections.Generic;
 
 public class SpaceManager : MonoBehaviour 
 {
-	//Maximum masss a body can Have
-	int maxMass = 50;
-
 	//How many objects you want to start with
 	public int planetsToSpawn;
 
@@ -17,9 +14,11 @@ public class SpaceManager : MonoBehaviour
 	public int gForceAmp = 50;
 
 	//Prefab used for spawning planets
-	public GameObject body;
-	public GameObject player;
+	public SpaceObject planetTemplate;
 	public PlayerCam camPlayerTemplate;
+
+	//Reference to player
+	public SpaceObject player;
 
 	//Reference for Centre of mass position
 	public GameObject CentreOfMassRef;
@@ -28,6 +27,8 @@ public class SpaceManager : MonoBehaviour
 
 	//Scale the planets to make them larger
 	public float massRange;
+
+	public float scale = 1;
 
 	//Reference to PlayerCam on planet;
 	PlayerCam camPlayerInstance;
@@ -38,7 +39,6 @@ public class SpaceManager : MonoBehaviour
 
 	//Can the user pause the sim
 	bool canPause = true;
-	bool absorbingOn = false;
 	
 	//Whether user is spawning a planet
 	bool spawningPlanet = false;
@@ -64,7 +64,7 @@ public class SpaceManager : MonoBehaviour
 	Vector3 spawnPos;
 	Vector3 spawnVelocity;
 
-	List<GameObject> bodies;
+	List<SpaceObject> bodies;
 	
 	//Variables for Inter-planetary interaction
 	Vector3 deltaPosition;
@@ -75,7 +75,7 @@ public class SpaceManager : MonoBehaviour
 	float forceDueToGrav;
 
 	//Variables for player as part of the simulation
-	GameObject closestPlanetToPlayer = null;
+	SpaceObject closestPlanetToPlayer = null;
 	float clossetPlanetMass;
 	//Relative distance of closes planet to player
 	float relDistPlanetToPlayer = 0;
@@ -89,7 +89,32 @@ public class SpaceManager : MonoBehaviour
 	// Use this for initialization
 	void Start () 
 	{
-		bodies = new List<GameObject>();
+		SpaceObject.pScale = scale;
+
+		bodies = new List<SpaceObject>();
+
+		bodies.Add(Instantiate(planetTemplate, new Vector3(0, 0, 0), Quaternion.identity) as SpaceObject);	
+		bodies[bodies.Count-1].name = "body" + (bodies.Count-1);
+		
+		bodies[bodies.Count-1].setMass(10);
+
+		bodies.Add(Instantiate(planetTemplate, new Vector3(300, 0, 0), Quaternion.identity) as SpaceObject);	
+		bodies[bodies.Count-1].name = "body" + (bodies.Count-1);
+		
+		bodies[bodies.Count-1].setMass(2);
+		bodies[bodies.Count-1].rigidbody.AddForce(0,0,500);
+
+		//bodies[bodies.Count-1].orbitTarget = bodies[bodies.Count-2];
+
+		bodies.Add(Instantiate(planetTemplate, new Vector3(350, 0, 0), Quaternion.identity) as SpaceObject);	
+		bodies[bodies.Count-1].name = "body" + (bodies.Count-1);
+		
+		bodies[bodies.Count-1].setMass(0.2f);
+		bodies[bodies.Count-1].rigidbody.AddForce(0,0,100);
+		
+		bodies[bodies.Count-1].orbitTarget = bodies[bodies.Count-2];
+
+
 	}
 
 	IEnumerator spawnBodies()
@@ -106,7 +131,7 @@ public class SpaceManager : MonoBehaviour
 			float randY = Random.Range(-posRange, posRange);
 			float randZ = Random.Range(-posRange, posRange);	
 
-			bodies.Add(Instantiate(body, new Vector3(randX, randY, randZ), Quaternion.identity) as GameObject);
+			bodies.Add(Instantiate(planetTemplate, new Vector3(randX, randY, randZ), Quaternion.identity) as SpaceObject);
 
 			bodies[bodies.Count-1].name = "body" + (bodies.Count-1);
 
@@ -129,7 +154,8 @@ public class SpaceManager : MonoBehaviour
 
 		canPause = true;
 
-		AbsorbOnCollision.absorbOn = absorbingOn;
+		//Start with absorbing off
+		AbsorbOnCollision.absorbOn = false;
 	}
 
 	void Update()
@@ -160,7 +186,7 @@ public class SpaceManager : MonoBehaviour
 		{
 			if(bodies.Count > 0)
 			{
-				foreach(GameObject body in bodies.ToArray())
+				foreach(SpaceObject body in bodies.ToArray())
 				{
 					Destroy(body);
 				}
@@ -168,8 +194,6 @@ public class SpaceManager : MonoBehaviour
 				bodies.Clear();
 			}
 		}
-
-		AbsorbOnCollision.absorbOn = absorbingOn;
 
 		spawningPositionRef.SetActive(spawningPlanet);
 		spawningVeloctiyRef.SetActive(spawningPlanet);
@@ -200,7 +224,7 @@ public class SpaceManager : MonoBehaviour
 
 	void OnGUI()
 	{
-		absorbingOn = GUI.Toggle(new Rect(0, Screen.height - sH, sW * toggleAbsorb.Length, sH), absorbingOn, toggleAbsorb);
+		AbsorbOnCollision.absorbOn = GUI.Toggle(new Rect(0, Screen.height - sH, sW * toggleAbsorb.Length, sH), AbsorbOnCollision.absorbOn, toggleAbsorb);
 
 		GUI.Label(new Rect(Screen.width/2, 0, 200, 30), "Total bodies: " + bodies.Count);
 
@@ -266,15 +290,15 @@ public class SpaceManager : MonoBehaviour
 
 		GUI.Label(new Rect(0, 110, 60, 22), "Mass");
 		spawnMass = GUI.TextField(new Rect(0, 132, 72, 22), spawnMass);
-		GUI.Label (new Rect(76, 132, 16 * sW, 22), "(max Mass : " + maxMass + ")");
+		GUI.Label (new Rect(76, 132, 16 * sW, 22), "(max Mass : " + SpaceObject.maxMass + ")");
 
 		if(GUI.Button(new Rect(0, 154, 120, 22), "Spawn Planet"))
 		{
 
-			bodies.Add(Instantiate(body, spawnPos, Quaternion.identity) as GameObject);
+			bodies.Add(Instantiate(planetTemplate, spawnPos, Quaternion.identity) as SpaceObject);
 			bodies[bodies.Count -1].rigidbody.AddForce(spawnVelocity);
 			bodies[bodies.Count -1].name = "body" + (bodies.Count-1);
-			setMass(bodies.Count-1, int.Parse(spawnMass));
+			bodies[bodies.Count -1].setMass(int.Parse(spawnMass));
 		}
 
 		GUI.EndGroup();
@@ -326,13 +350,13 @@ public class SpaceManager : MonoBehaviour
 
 		GUI.Label(new Rect(0, 110, 60, 22), "Mass Range");
 		spawnMassRange = GUI.TextField(new Rect(0, 132, 72, 22), spawnMassRange);
-		GUI.Label (new Rect(76, 132, 16 * sW, 22), "(max Mass : " + maxMass + ")");
+		GUI.Label (new Rect(76, 132, 16 * sW, 22), "(max Mass : " + SpaceObject.maxMass + ")");
 		
 		if(GUI.Button(new Rect(0, 154, 120, 22), "Spawn Planets"))
 		{
 			planetsToSpawn = int.Parse(spawnNumberOfPlanets);
 			posRange = int.Parse(spawnPosRange);
-			massRange = Mathf.Clamp(int.Parse(spawnMassRange), 0, maxMass);
+			massRange = Mathf.Clamp(int.Parse(spawnMassRange), 0, SpaceObject.maxMass);
 
 			StartCoroutine("spawnBodies");
 		}
@@ -403,9 +427,9 @@ public class SpaceManager : MonoBehaviour
 
 		for(int fB = 0; fB < bodies.Count ; fB++)
 		{
-			if(bodies[fB].rigidbody.mass > maxMass)
+			if(bodies[fB].rigidbody.mass > SpaceObject.maxMass)
 			{
-				setMass(fB, maxMass);
+				bodies[fB].setMass(SpaceObject.maxMass);
 			}
 
 			COMPos.x += bodies[fB].rigidbody.mass * bodies[fB].transform.position.x;
@@ -465,8 +489,15 @@ public class SpaceManager : MonoBehaviour
 
 						forceDueToGrav = (bodies[fB].rigidbody.mass * bodies[sB].rigidbody.mass)/(relDistance/10);
 
-						bodies[fB].rigidbody.AddForce(direction * forceDueToGrav * gForceAmp);
-						bodies[sB].rigidbody.AddForce(direction * -1 * forceDueToGrav * gForceAmp);
+						if(bodies[fB].canOrbit(bodies[sB]))
+						{
+							bodies[fB].rigidbody.AddForce(direction * forceDueToGrav * gForceAmp);
+						}
+
+						if(bodies[sB].canOrbit(bodies[fB]))
+						{
+							bodies[sB].rigidbody.AddForce(direction * -1 * forceDueToGrav * gForceAmp);
+						}
 					}
 														
 				}
@@ -488,7 +519,7 @@ public class SpaceManager : MonoBehaviour
 
 	public void addPlayerSim(Vector3 spawn)
 	{
-		bodies.Insert(0,(Instantiate(player, spawn, Quaternion.identity) as GameObject));
+		bodies.Insert(0,(Instantiate(player, spawn, Quaternion.identity) as SpaceObject));
 	}
 
 	public void addPlayerCam(GameObject planet, Vector3 spawn)
@@ -513,18 +544,9 @@ public class SpaceManager : MonoBehaviour
 		bodies[body].transform.localScale = new Vector3((randomMass), (randomMass), (randomMass));
 	}
 
-	void setMass(int BodiesMassToSet, float massToSet)
-	{
-		massToSet = Mathf.Clamp(massToSet, 1, maxMass);
-
-		bodies[BodiesMassToSet].rigidbody.mass = massToSet;
-
-		bodies[BodiesMassToSet].transform.localScale = new Vector3((massToSet), (massToSet), (massToSet));
-	}
-
 	public void removeBodyAt(Vector3 position)
 	{
-		foreach(GameObject body in bodies.ToArray())
+		foreach(SpaceObject body in bodies.ToArray())
 		{
 			if(body.transform.position == position)
 			{
