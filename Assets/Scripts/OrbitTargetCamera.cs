@@ -10,7 +10,7 @@ public class OrbitTargetCamera : MonoBehaviour
 	float x, y;
 
 	public float zoom = -10;
-	int zoomSpeed = 200;
+	int zoomSpeed = 10;
 
 	Quaternion rotation;
 
@@ -39,10 +39,32 @@ public class OrbitTargetCamera : MonoBehaviour
 
 			if(Input.GetAxis("Mouse ScrollWheel") != 0)
 			{
-				zoom += Input.GetAxis("Mouse ScrollWheel") * zoomSpeed * Time.deltaTime;
+				Vector3 temp = this.transform.position - target.transform.position;
+
+				float temp2 = temp.sqrMagnitude;
+
+				temp2 = Mathf.Clamp(temp2, 0, 100);
+
+//				Debug.Log(temp2);
+
+				zoom += Input.GetAxis("Mouse ScrollWheel") * temp2 * zoomSpeed * Time.deltaTime;
 			}
 
 			transform.position = rotation * new Vector3(0.0f, 0.0f, zoom) + target.transform.position;
+
+			if(Input.GetMouseButtonDown(0))
+			{
+				Ray ray = this.camera.ScreenPointToRay(Input.mousePosition);
+				RaycastHit hit;
+				
+				if(Physics.Raycast(ray, out hit))
+				{	
+					if(target != GameObject.Find(hit.transform.name))
+					{
+						target = GameObject.Find(hit.transform.name);
+					}
+				}
+			}
 
 		}
 

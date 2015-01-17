@@ -10,8 +10,11 @@ public class SpaceManager : MonoBehaviour
 	//How far planets should spawn
 	public float posRange;
 
-	//how strong gravity should be
-	public int gForceAmp = 50;
+	//GravitationalConstant
+	public static double GRAVITYCONSTANT = 6.673e-11;
+
+	//Gravity Scalar
+	public static float gForceAmp = 1;
 
 	//Prefab used for spawning planets
 	public SpaceObject planetTemplate;
@@ -29,6 +32,8 @@ public class SpaceManager : MonoBehaviour
 	public float massRange;
 
 	public float scale = 1;
+
+	public float timeScale = 1;
 
 	//Reference to PlayerCam on planet;
 	PlayerCam camPlayerInstance;
@@ -93,28 +98,29 @@ public class SpaceManager : MonoBehaviour
 
 		bodies = new List<SpaceObject>();
 
-		bodies.Add(Instantiate(planetTemplate, new Vector3(0, 0, 0), Quaternion.identity) as SpaceObject);	
-		bodies[bodies.Count-1].name = "body" + (bodies.Count-1);
-		
-		bodies[bodies.Count-1].setMass(10);
+		spawnBody("Sun", planetTemplate, Vector3.zero, PStats.SunMass, PStats.SunDiam, null);
 
-		bodies.Add(Instantiate(planetTemplate, new Vector3(300, 0, 0), Quaternion.identity) as SpaceObject);	
-		bodies[bodies.Count-1].name = "body" + (bodies.Count-1);
-		
-		bodies[bodies.Count-1].setMass(2);
-		bodies[bodies.Count-1].rigidbody.AddForce(0,0,500);
+		spawnBody("Mercury", planetTemplate, new Vector3(PStats.MercuryDist, 0, 0), PStats.MercuryMass, PStats.MercuryDiam, bodies[0]);
 
-		//bodies[bodies.Count-1].orbitTarget = bodies[bodies.Count-2];
+		spawnBody("Venus", planetTemplate, new Vector3(PStats.VenusDist, 0, 0), PStats.VenusMass, PStats.VenusDiam, bodies[0]);
+//
+//		spawnBody("Earth", planetTemplate, new Vector3(PStats.EarthDist, 0, 0), PStats.EarthMass, PStats.EarthDiam, bodies[0]);
+//
+//		spawnBody("Moon", planetTemplate, new Vector3(PStats.MoonDist, 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1]);
+//
+//		spawnBody("Mars", planetTemplate, new Vector3(PStats.MarsDist, 0, 0), PStats.MarsMass, PStats.MarsDiam, bodies[0]);
+//
+//		spawnBody("Jupiter", planetTemplate, new Vector3(PStats.JupiterDist, 0, 0), PStats.JupiterMass, PStats.JupiterDiam, bodies[0]);
+//
+//		spawnBody("Saturn", planetTemplate, new Vector3(PStats.SaturnDist, 0, 0), PStats.SaturnMass, PStats.SaturnDiam, bodies[0]);
+//
+//		spawnBody("Uranus", planetTemplate, new Vector3(PStats.UranusDist, 0, 0), PStats.UranusMass, PStats.UranusDiam, bodies[0]);
+//
+//		spawnBody("Neptune", planetTemplate, new Vector3(PStats.NeptuneDist, 0, 0), PStats.NeptuneMass, PStats.NeptuneDiam, bodies[0]);
+//
+//		spawnBody("Pluto", planetTemplate, new Vector3(PStats.PlutoDist, 0, 0), PStats.PlutoMass, PStats.PlutoDiam, bodies[0]);
 
-		bodies.Add(Instantiate(planetTemplate, new Vector3(350, 0, 0), Quaternion.identity) as SpaceObject);	
-		bodies[bodies.Count-1].name = "body" + (bodies.Count-1);
-		
-		bodies[bodies.Count-1].setMass(0.2f);
-		bodies[bodies.Count-1].rigidbody.AddForce(0,0,100);
-		
-		bodies[bodies.Count-1].orbitTarget = bodies[bodies.Count-2];
-
-
+		Time.timeScale = timeScale;
 	}
 
 	IEnumerator spawnBodies()
@@ -158,6 +164,48 @@ public class SpaceManager : MonoBehaviour
 		AbsorbOnCollision.absorbOn = false;
 	}
 
+	void spawnBody(string name, SpaceObject bodyTemplate, Vector3 pos, float mass, float diam, SpaceObject _OrbitTarget)
+	{
+		bodies.Add(Instantiate(bodyTemplate, new Vector3(PStats.inAUnits(pos.x), pos.y, pos.z), Quaternion.identity) 
+		           as SpaceObject);	
+
+		bodies[bodies.Count-1].name = name;
+		
+		bodies[bodies.Count-1].setMassAndSize(mass, PStats.inAUnits(diam));
+
+		//Orbit Target logic
+		if(_OrbitTarget != null)
+		{
+			Debug.Log (bodies[bodies.Count-1].name + " is going to oribit " + _OrbitTarget.name);
+			bodies[bodies.Count-1].orbitTarget = _OrbitTarget;	
+
+			float diff = Mathf.Abs(bodies[bodies.Count-1].rigidbody.mass - _OrbitTarget.rigidbody.mass);
+
+			Debug.Log ("Mass difference of " + name + " and " + _OrbitTarget.name + ": " + diff);
+
+			if( diff < 1)
+			{
+				bodies[bodies.Count-1].rigidbody.AddForce(0,0,bodies[bodies.Count-1].findOVWithMass(_OrbitTarget));
+			}
+			else
+			{
+				bodies[bodies.Count-1].rigidbody.AddForce(0,0,bodies[bodies.Count-1].findSimpleOrbitVelocity(_OrbitTarget));
+			}
+
+			if(_OrbitTarget.orbitTarget != null)
+			{
+				if( diff < 1)
+				{
+					bodies[bodies.Count-1].rigidbody.AddForce(0,0,_OrbitTarget.findOVWithMass(_OrbitTarget.orbitTarget));
+				}
+				else
+				{
+					bodies[bodies.Count-1].rigidbody.AddForce(0,0,_OrbitTarget.findSimpleOrbitVelocity(_OrbitTarget.orbitTarget));
+				}
+			}
+		}
+	}
+
 	void Update()
 	{
 		if(closestPlanetToPlayer != null)
@@ -192,6 +240,18 @@ public class SpaceManager : MonoBehaviour
 				}
 
 				bodies.Clear();
+			}
+		}
+
+		if(Input.GetKeyDown(KeyCode.C))
+		{
+			if(CentreOfMassRef.activeSelf)
+			{
+				CentreOfMassRef.SetActive(false);
+			}
+			else
+			{
+				CentreOfMassRef.SetActive(true);
 			}
 		}
 
@@ -298,7 +358,7 @@ public class SpaceManager : MonoBehaviour
 			bodies.Add(Instantiate(planetTemplate, spawnPos, Quaternion.identity) as SpaceObject);
 			bodies[bodies.Count -1].rigidbody.AddForce(spawnVelocity);
 			bodies[bodies.Count -1].name = "body" + (bodies.Count-1);
-			bodies[bodies.Count -1].setMass(int.Parse(spawnMass));
+			bodies[bodies.Count -1].setMassAndSize(int.Parse(spawnMass),int.Parse(spawnMass));
 		}
 
 		GUI.EndGroup();
@@ -427,10 +487,7 @@ public class SpaceManager : MonoBehaviour
 
 		for(int fB = 0; fB < bodies.Count ; fB++)
 		{
-			if(bodies[fB].rigidbody.mass > SpaceObject.maxMass)
-			{
-				bodies[fB].setMass(SpaceObject.maxMass);
-			}
+//			bodies[fB].rigidbody.mass = Mathf.Clamp(bodies[fB].rigidbody.mass, 0, SpaceObject.maxMass);
 
 			COMPos.x += bodies[fB].rigidbody.mass * bodies[fB].transform.position.x;
 			COMPos.y += bodies[fB].rigidbody.mass * bodies[fB].transform.position.y;
@@ -442,8 +499,6 @@ public class SpaceManager : MonoBehaviour
 			{
 				Debug.LogError("bodies[fB] is null");
 			}		
-
-			//bodies[fB].rigidbody.mass = Mathf.Clamp(bodies[fB].rigidbody.mass, 0, 10);
 
 			for(int sB = 0; sB < bodies.Count ; sB++)
 			{
@@ -486,17 +541,21 @@ public class SpaceManager : MonoBehaviour
 							}
 						}
 
+						forceDueToGrav = (bodies[fB].rigidbody.mass * bodies[sB].rigidbody.mass) 
+							* (float)GRAVITYCONSTANT * gForceAmp;
 
-						forceDueToGrav = (bodies[fB].rigidbody.mass * bodies[sB].rigidbody.mass)/(relDistance/10);
+						forceDueToGrav/= (relDistance);
+
+//						Debug.Log(forceDueToGrav);
 
 						if(bodies[fB].canOrbit(bodies[sB]))
 						{
-							bodies[fB].rigidbody.AddForce(direction * forceDueToGrav * gForceAmp);
+							bodies[fB].rigidbody.AddForce(direction * forceDueToGrav);
 						}
 
 						if(bodies[sB].canOrbit(bodies[fB]))
 						{
-							bodies[sB].rigidbody.AddForce(direction * -1 * forceDueToGrav * gForceAmp);
+							bodies[sB].rigidbody.AddForce(direction * -1 * forceDueToGrav);
 						}
 					}
 														
@@ -508,7 +567,8 @@ public class SpaceManager : MonoBehaviour
 		{
 			COMPos /= totalMass;
 
-			CentreOfMassRef.SetActive(true);
+			CentreOfMassRef.transform.localScale = new Vector3(totalMass, totalMass, totalMass);
+
 			CentreOfMassRef.transform.position = COMPos;
 		}
 		else
