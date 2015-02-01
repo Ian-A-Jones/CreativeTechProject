@@ -8,12 +8,22 @@ public class SpaceObject : MonoBehaviour
 	public static int maxMass = 50;
 	public static float pScale = 10;
 	public static float sScale = 10;
+	public const float AMP = 100f;
+	public static float speedAmp =  25, distanceAmp = 25;
 	//IF a SpaceObject has an orbit target then it will only be affected by it's Gravity
 	public SpaceObject orbitTarget = null;
 	public bool orbitOn = true;
 	public float orbitDistance;
 
 	public float avgOrbitVelocity;
+
+	public float speed;
+	public Vector3 deltaPosition;
+	public float brakeSpeed;
+	public Vector3 normalisedVelocity;
+	public Vector3 brakeVelocity;
+	public float acclSpeed;
+	public float distance;
 
 	public void init(string name, float mass, float diam, SpaceObject _OrbitTarget)
 	{
@@ -33,29 +43,33 @@ public class SpaceObject : MonoBehaviour
 			
 			Debug.Log ("Mass difference of " + name + " and " + _OrbitTarget.name + ": " + diff);
 			
-			//			if( diff < 1)
-			//			{
-			//				this.avgOrbitVelocity = this.findOVWithMass(_OrbitTarget);
-			//			}
-			//			else
-			//			{
-			this.avgOrbitVelocity = this.findSimpleOrbitVelocity(_OrbitTarget);
-			//			}
+			if( diff < 1)
+			{
+				this.avgOrbitVelocity = this.findOVWithMass(_OrbitTarget);
+			}
+			else
+			{
+				this.avgOrbitVelocity = this.findSimpleOrbitVelocity(_OrbitTarget);
+			}
 			
 			if(_OrbitTarget.orbitTarget != null)
 			{
-				//				if( diff < 1)
-				//				{
-				//					this.avgOrbitVelocity += _OrbitTarget.findOVWithMass(_OrbitTarget.orbitTarget);
-				//				}
-				//				else
-				//				{
-									this.avgOrbitVelocity += _OrbitTarget.findSimpleOrbitVelocity(_OrbitTarget.orbitTarget);
-				//				}
+//				if( diff < 1)
+//				{
+//					this.avgOrbitVelocity += _OrbitTarget.findOVWithMass(_OrbitTarget.orbitTarget);
+//				}
+//				else
+//				{
+//					this.avgOrbitVelocity += _OrbitTarget.findSimpleOrbitVelocity(_OrbitTarget.orbitTarget);
+//				}
 			}
-			
-			this.rigidbody.AddForce(0,0, this.avgOrbitVelocity, ForceMode.VelocityChange);
 
+			this.rigidbody.AddForce(0,0, this.avgOrbitVelocity, ForceMode.Force);
+
+//			speedAmp = 25/this.rigidbody.mass;
+//			distanceAmp = 25/this.rigidbody.mass;
+
+			Debug.Log ("Avg V : " + avgOrbitVelocity);
 			GetComponentInChildren<TrailRenderer>().startWidth = transform.localScale.x;
 			GetComponentInChildren<TrailRenderer>().endWidth = transform.localScale.x;
 		}
@@ -144,14 +158,16 @@ public class SpaceObject : MonoBehaviour
 	{
 		if(orbitTarget != null)
 		{
-//			clampVelocity();
-//			clampDistance();
+//			Debug.Log ("Velocity: " + rigidbody.velocity.magnitude);
+			clampVelocity();
+			clampDistance();
 		}
 	}
 
 	public void clampVelocity()
 	{
-		float speed = Vector3.Magnitude (rigidbody.velocity);  // test current object speed
+//		Debug.Log ("Triggered");
+		float speed = rigidbody.velocity.magnitude;  // test current object speed
 
 		Vector3 deltaPosition = this.transform.position - orbitTarget.transform.position;
 
@@ -163,53 +179,47 @@ public class SpaceObject : MonoBehaviour
 
 //		Debug.DrawRay(this.transform.position, deltaPosition.normalized, Color.red);
 
-		if (speed > (avgOrbitVelocity * 1.2))
-			
+		if (speed < (avgOrbitVelocity * 0.8) && speed > 0)
 		{
-			float brakeSpeed = speed - (avgOrbitVelocity);  // calculate the speed decrease
+			acclSpeed = speed + (avgOrbitVelocity);
 			
-			Vector3 normalisedVelocity = rigidbody.velocity.normalized;
-			Vector3 brakeVelocity = normalisedVelocity * brakeSpeed;  // make the brake Vector3 value
+			normalisedVelocity = rigidbody.velocity.normalized;
+			brakeVelocity = normalisedVelocity * acclSpeed;  // make the brake Vector3 value
 			
-			rigidbody.AddForce(-brakeVelocity);  // apply opposing brake force
+			rigidbody.AddForce(brakeVelocity * avgOrbitVelocity/speed * speedAmp * Time.deltaTime);  // apply opposing brake force
+			
 		}
 
-		if (speed < (avgOrbitVelocity * 0.8))
-		{
-			float acclSpeed = speed + (avgOrbitVelocity);
-
-			Vector3 normalisedVelocity = rigidbody.velocity.normalized;
-			Vector3 brakeVelocity = normalisedVelocity * acclSpeed;  // make the brake Vector3 value
+		if (speed > (avgOrbitVelocity * 1.2) && speed > 0)
 			
-			rigidbody.AddForce(brakeVelocity);  // apply opposing brake force
-
+		{
+			brakeSpeed = speed - (avgOrbitVelocity);  // calculate the speed decrease
+			
+			normalisedVelocity = rigidbody.velocity.normalized;
+			brakeVelocity = normalisedVelocity * brakeSpeed;  // make the brake Vector3 value
+			
+			rigidbody.AddForce(-brakeVelocity * speed/avgOrbitVelocity * speedAmp * Time.deltaTime);  // apply opposing brake force
 		}
 	}
 
 	public void clampDistance()
 	{
-		float distance = Vector3.Distance(this.transform.position, orbitTarget.transform.position);
-
-		Vector3 deltaPosition = this.transform.position - orbitTarget.transform.position;
-
-//		Debug.DrawLine(this.transform.position, deltaPosition * 0.8f, Color.red); 
-//
-//		Debug.DrawLine(this.transform.position, deltaPosition * - 1.2f, Color.red);
+		distance = Vector3.Distance(this.transform.position, orbitTarget.transform.position);
+//		Debug.Log ("Distance to Sun: " + distance);
+		deltaPosition = this.transform.position - orbitTarget.transform.position;
+		
+		//		Debug.DrawLine(this.transform.position, deltaPosition * 0.8f, Color.red); 
+		//
+//		Debug.DrawRay(transform.position, -deltaPosition, Color.red);
 
 		if(distance < orbitDistance * 0.8f)
 		{
-
-			deltaPosition = Vector3.Normalize(deltaPosition);
-			
-			rigidbody.AddForce(deltaPosition * orbitDistance);
+			rigidbody.AddForce(deltaPosition.normalized * orbitDistance/distance * distanceAmp * Time.deltaTime);
 		}
 		
 		if(distance > orbitDistance * 1.2f)
 		{
-			
-			deltaPosition = Vector3.Normalize(deltaPosition);
-			
-			rigidbody.AddForce( -deltaPosition * orbitDistance);
+			rigidbody.AddForce(-deltaPosition.normalized * distance/orbitDistance * distanceAmp * Time.deltaTime);
 		}
 	}
 }

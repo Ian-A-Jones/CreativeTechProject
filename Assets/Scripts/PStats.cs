@@ -3,7 +3,7 @@ using System.Collections;
 
 public static class PStats
 {
-	public static float AUScaling = 100;
+	public static float AUScaling = 200;
 
 	public static float DistScale = 1f;
 

@@ -11,7 +11,7 @@ public class SpaceManager : MonoBehaviour
 	public float posRange;
 
 	//GravitationalConstant
-	public static double GRAVITYCONSTANT = 6.673e-11;
+	public static double GRAVITYCONSTANT = 1;
 
 	//Gravity Scalar
 	public static float gForceAmp = 1;
@@ -100,13 +100,13 @@ public class SpaceManager : MonoBehaviour
 
 		spawnBody("Sun", planetTemplate, Vector3.zero, PStats.SunMass, PStats.SunDiam, null);
 
-//		spawnBody("Mercury", planetTemplate, new Vector3(PStats.MercuryDist, 0, 0), PStats.MercuryMass, PStats.MercuryDiam, bodies[0]);
+		spawnBody("Mercury", planetTemplate, new Vector3(PStats.MercuryDist, 0, 0), PStats.MercuryMass, PStats.MercuryDiam, bodies[0]);
 
-//		spawnBody("Venus", planetTemplate, new Vector3(PStats.VenusDist, 0, 0), PStats.VenusMass, PStats.VenusDiam, bodies[0]);
+		spawnBody("Venus", planetTemplate, new Vector3(PStats.VenusDist, 0, 0), PStats.VenusMass, PStats.VenusDiam, bodies[0]);
 
 		spawnBody("Earth", planetTemplate, new Vector3(PStats.EarthDist, 0, 0), PStats.EarthMass, PStats.EarthDiam, bodies[0]);
 
-		spawnBody("Moon", planetTemplate, new Vector3(PStats.MoonDist, 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1]);
+//		spawnBody("Moon", planetTemplate, new Vector3(PStats.MoonDist, 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1]);
 
 //		spawnBody("Mars", planetTemplate, new Vector3(PStats.MarsDist, 0, 0), PStats.MarsMass, PStats.MarsDiam, bodies[0]);
 
@@ -518,14 +518,14 @@ public class SpaceManager : MonoBehaviour
 
 						if(bodies[fB].canOrbit(bodies[sB]))
 						{
-							bodies[fB].rigidbody.AddForce(direction * forceDueToGrav);
+							bodies[fB].rigidbody.AddForce(direction * forceDueToGrav * Time.deltaTime);
 							bodies[fB].maintainOrbit();
 
 						}
 
 						if(bodies[sB].canOrbit(bodies[fB]))
 						{
-							bodies[sB].rigidbody.AddForce(direction * -1 * forceDueToGrav);
+							bodies[sB].rigidbody.AddForce(direction * -1 * forceDueToGrav * Time.deltaTime);
 							bodies[sB].maintainOrbit();
 						}
 					}
