@@ -6,7 +6,8 @@ public class SpaceObject : MonoBehaviour
 	//Member Variables
 	//Maximum masss a body can Have
 	public static int maxMass = 50;
-	public static float pScale = 100;
+	public static float pScale = 10;
+	public static float sScale = 10;
 	//IF a SpaceObject has an orbit target then it will only be affected by it's Gravity
 	public SpaceObject orbitTarget = null;
 	public bool orbitOn = true;
@@ -53,7 +54,10 @@ public class SpaceObject : MonoBehaviour
 				//				}
 			}
 			
-			this.rigidbody.AddForce(0,0, this.avgOrbitVelocity);
+			this.rigidbody.AddForce(0,0, this.avgOrbitVelocity, ForceMode.VelocityChange);
+
+			GetComponentInChildren<TrailRenderer>().startWidth = transform.localScale.x;
+			GetComponentInChildren<TrailRenderer>().endWidth = transform.localScale.x;
 		}
 	}
 
@@ -78,7 +82,16 @@ public class SpaceObject : MonoBehaviour
 		
 		rigidbody.mass = massToSet;
 
-		transform.localScale = new Vector3(diameter * pScale, diameter * pScale, diameter * pScale);
+		if(name != "Sun")
+		{
+			Debug.Log("Planet size");
+			transform.localScale = new Vector3(diameter * pScale, diameter * pScale, diameter * pScale);
+		}
+		else
+		{
+			Debug.Log ("Sun Size");
+			transform.localScale = new Vector3(diameter * sScale, diameter * sScale, diameter * sScale);
+		}
 	}
 
 	/*This function uses the calculation for mean orbital speed with a small eccentricity orbit to calculate what 
@@ -131,8 +144,8 @@ public class SpaceObject : MonoBehaviour
 	{
 		if(orbitTarget != null)
 		{
-			clampVelocity();
-			clampDistance();
+//			clampVelocity();
+//			clampDistance();
 		}
 	}
 

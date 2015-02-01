@@ -3,7 +3,9 @@ using System.Collections;
 
 public static class PStats
 {
-	public static float AUScaling = 10;
+	public static float AUScaling = 100;
+
+	public static float DistScale = 1f;
 
 	public const float REALEARTHMASS = 5679.6f;
 
@@ -61,7 +63,7 @@ public static class PStats
 	//Earth Units = Any unit in Km/Earth's Diameter
 	public static float inAUnits(float val)
 	{
-		return (val/EarthDist) * AUScaling;
+		return (val/EarthDist) * AUScaling * DistScale;
 	}
 
 	public static float temp(float val)
