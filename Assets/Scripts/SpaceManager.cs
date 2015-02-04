@@ -100,13 +100,13 @@ public class SpaceManager : MonoBehaviour
 
 		spawnBody("Sun", planetTemplate, Vector3.zero, PStats.SunMass, PStats.SunDiam, null);
 
-		spawnBody("Mercury", planetTemplate, new Vector3(PStats.MercuryDist, 0, 0), PStats.MercuryMass, PStats.MercuryDiam, bodies[0]);
+//		spawnBody("Mercury", planetTemplate, new Vector3(PStats.MercuryDist, 0, 0), PStats.MercuryMass, PStats.MercuryDiam, bodies[0]);
 
-		spawnBody("Venus", planetTemplate, new Vector3(PStats.VenusDist, 0, 0), PStats.VenusMass, PStats.VenusDiam, bodies[0]);
+//		spawnBody("Venus", planetTemplate, new Vector3(PStats.VenusDist, 0, 0), PStats.VenusMass, PStats.VenusDiam, bodies[0]);
 
 		spawnBody("Earth", planetTemplate, new Vector3(PStats.EarthDist, 0, 0), PStats.EarthMass, PStats.EarthDiam, bodies[0]);
 
-//		spawnBody("Moon", planetTemplate, new Vector3(PStats.MoonDist, 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1]);
+		spawnBody("Moon", planetTemplate, new Vector3(PStats.MoonDist, 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1]);
 
 //		spawnBody("Mars", planetTemplate, new Vector3(PStats.MarsDist, 0, 0), PStats.MarsMass, PStats.MarsDiam, bodies[0]);
 
@@ -164,13 +164,13 @@ public class SpaceManager : MonoBehaviour
 		AbsorbOnCollision.absorbOn = false;
 	}
 
-	void spawnBody(string name, SpaceObject bodyTemplate, Vector3 pos, float mass, float diam, SpaceObject _OrbitTarget)
+	void spawnBody(string name, SpaceObject bodyTemplate, Vector3 pos, float mass, float diam, SpaceObject _OrbitTarget, float minOrbitP, float maxOrbitP)
 	{
 
 		bodies.Add(Instantiate(bodyTemplate, new Vector3(PStats.inAUnits(pos.x), pos.y, pos.z), Quaternion.identity) 
 		           as SpaceObject);	
 
-		bodies[bodies.Count-1].init(name, mass, diam, _OrbitTarget);
+		bodies[bodies.Count-1].init(name, mass, diam, _OrbitTarget, minOrbitP, maxOrbitP);
 
 	}
 
