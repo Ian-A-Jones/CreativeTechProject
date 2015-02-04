@@ -25,7 +25,7 @@ public class SpaceObject : MonoBehaviour
 	public float acclSpeed;
 	public float distance;
 
-	public void init(string name, float mass, float diam, SpaceObject _OrbitTarget)
+	public void init(string name, float mass, float diam, SpaceObject _OrbitTarget, float _MinOrbitP, float _MaxOrbitP)
 	{
 		this.name = name;
 		
@@ -43,14 +43,17 @@ public class SpaceObject : MonoBehaviour
 			
 			Debug.Log ("Mass difference of " + name + " and " + _OrbitTarget.name + ": " + diff);
 			
-			if( diff < 1)
-			{
-				this.avgOrbitVelocity = this.findOVWithMass(_OrbitTarget);
-			}
-			else
-			{
+			minOrbitP = _MinOrbitP;
+			maxOrbitP = _MaxOrbitP;
+			
+//			if( diff < 1)
+//			{
+//				this.avgOrbitVelocity = this.findOVWithMass(_OrbitTarget);
+//			}
+//			else
+//			{
 				this.avgOrbitVelocity = this.findSimpleOrbitVelocity(_OrbitTarget);
-			}
+//			}
 			
 			if(_OrbitTarget.orbitTarget != null)
 			{
@@ -66,12 +69,12 @@ public class SpaceObject : MonoBehaviour
 
 			this.rigidbody.AddForce(0,0, this.avgOrbitVelocity, ForceMode.Force);
 
-//			speedAmp = 25/this.rigidbody.mass;
-//			distanceAmp = 25/this.rigidbody.mass;
+			speedAmp = 25 *this.rigidbody.mass;
+			distanceAmp = 25 *this.rigidbody.mass;
 
 			Debug.Log ("Avg V : " + avgOrbitVelocity);
-			GetComponentInChildren<TrailRenderer>().startWidth = transform.localScale.x;
-			GetComponentInChildren<TrailRenderer>().endWidth = transform.localScale.x;
+			GetComponentInChildren<TrailRenderer>().startWidth = transform.localScale.x * 5;
+			GetComponentInChildren<TrailRenderer>().endWidth = transform.localScale.x * 5;
 		}
 	}
 
