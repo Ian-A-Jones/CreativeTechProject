@@ -6,16 +6,19 @@ public class SpaceObject : MonoBehaviour
 	//Member Variables
 	//Maximum masss a body can Have
 	public static int maxMass = 50;
-	public static float pScale = 10;
+	public static float pScale = 1;
 	public static float sScale = 10;
+	public static float TwoBodyMassScaling = 100;
 	public const float AMP = 100f;
-	public static float speedAmp =  25, distanceAmp = 25;
+	public static float speedAmp =  1, distanceAmp = 5;
 	//IF a SpaceObject has an orbit target then it will only be affected by it's Gravity
 	public SpaceObject orbitTarget = null;
 	public bool orbitOn = true;
 	public float orbitDistance;
 
 	public float avgOrbitVelocity;
+
+	float minOrbitP, maxOrbitP;
 
 	public float speed;
 	public Vector3 deltaPosition;
@@ -24,6 +27,8 @@ public class SpaceObject : MonoBehaviour
 	public Vector3 brakeVelocity;
 	public float acclSpeed;
 	public float distance;
+
+	public Vector3 directionToOrbitTarget;
 
 	public void init(string name, float mass, float diam, SpaceObject _OrbitTarget, float _MinOrbitP, float _MaxOrbitP)
 	{
@@ -35,9 +40,12 @@ public class SpaceObject : MonoBehaviour
 		if(_OrbitTarget != null)
 		{
 			this.orbitDistance = Mathf.Abs(this.transform.position.x - _OrbitTarget.transform.position.x);
-			
+
 			Debug.Log (this.name + " is going to oribit " + _OrbitTarget.name);
 			this.orbitTarget = _OrbitTarget;	
+
+
+//			thsis.transform.parent = orbitTarget.transform;
 			
 			float diff = Mathf.Abs(this.rigidbody.mass - _OrbitTarget.rigidbody.mass);
 			
@@ -57,24 +65,33 @@ public class SpaceObject : MonoBehaviour
 			
 			if(_OrbitTarget.orbitTarget != null)
 			{
+				orbitDistance/=2;
 //				if( diff < 1)
 //				{
 //					this.avgOrbitVelocity += _OrbitTarget.findOVWithMass(_OrbitTarget.orbitTarget);
 //				}
 //				else
 //				{
-//					this.avgOrbitVelocity += _OrbitTarget.findSimpleOrbitVelocity(_OrbitTarget.orbitTarget);
+					this.avgOrbitVelocity += _OrbitTarget.findSimpleOrbitVelocity(_OrbitTarget.orbitTarget);
 //				}
 			}
 
-			this.rigidbody.AddForce(0,0, this.avgOrbitVelocity, ForceMode.Force);
-
-			speedAmp = 25 *this.rigidbody.mass;
-			distanceAmp = 25 *this.rigidbody.mass;
+//			this.rigidbody.AddForce(0,0, this.avgOrbitVelocity + _OrbitTarget.avgOrbitVelocity, ForceMode.Force);
 
 			Debug.Log ("Avg V : " + avgOrbitVelocity);
-			GetComponentInChildren<TrailRenderer>().startWidth = transform.localScale.x * 5;
-			GetComponentInChildren<TrailRenderer>().endWidth = transform.localScale.x * 5;
+
+			GetComponentInChildren<TrailRenderer>().time = 8f*orbitDistance/avgOrbitVelocity; //Magic number translated speed of object into a estimated time for trail to appear
+			GetComponentInChildren<TrailRenderer>().startWidth = GetComponentInChildren<MeshRenderer>().transform.localScale.x*transform.localScale.x;
+			GetComponentInChildren<TrailRenderer>().endWidth = GetComponentInChildren<MeshRenderer>().transform.localScale.x*transform.localScale.x;
+		}
+	}
+
+	void FixedUpdate()
+	{
+		if(orbitTarget)
+		{
+//			Debug.Log ("Maintaning Orbit");
+			maintainOrbit();
 		}
 	}
 
@@ -102,13 +119,22 @@ public class SpaceObject : MonoBehaviour
 		if(name != "Sun")
 		{
 			Debug.Log("Planet size");
-			transform.localScale = new Vector3(diameter * pScale, diameter * pScale, diameter * pScale);
+			transform.localScale = threeAsOne(diameter);
+			GetComponentInChildren<MeshRenderer>().transform.localScale = threeAsOne(diameter * 
+			                                                                         SpaceManager.planetSizeScale);
 		}
 		else
 		{
 			Debug.Log ("Sun Size");
-			transform.localScale = new Vector3(diameter * sScale, diameter * sScale, diameter * sScale);
+			transform.localScale = threeAsOne(diameter);
+			GetComponentInChildren<MeshRenderer>().transform.localScale = threeAsOne(diameter * sScale);
 		}
+	}
+
+	//Returns vector3 with x,y,z as all values
+	Vector3 threeAsOne(float val)
+	{
+		return new Vector3(val, val, val);
 	}
 
 	/*This function uses the calculation for mean orbital speed with a small eccentricity orbit to calculate what 
@@ -156,12 +182,11 @@ public class SpaceObject : MonoBehaviour
 		
 		return OrbitVelocity;
 	}
-
+	
 	public void maintainOrbit()
 	{
 		if(orbitTarget != null)
 		{
-//			Debug.Log ("Velocity: " + rigidbody.velocity.magnitude);
 			clampVelocity();
 			clampDistance();
 		}
@@ -169,7 +194,8 @@ public class SpaceObject : MonoBehaviour
 
 	public void clampVelocity()
 	{
-//		Debug.Log ("Triggered");
+//		Debug.Log ("Velocity: " + rigidbody.velocity.magnitude);
+
 		float speed = rigidbody.velocity.magnitude;  // test current object speed
 
 		Vector3 deltaPosition = this.transform.position - orbitTarget.transform.position;
@@ -182,47 +208,56 @@ public class SpaceObject : MonoBehaviour
 
 //		Debug.DrawRay(this.transform.position, deltaPosition.normalized, Color.red);
 
-		if (speed < (avgOrbitVelocity * 0.8) && speed > 0)
-		{
-			acclSpeed = speed + (avgOrbitVelocity);
-			
-			normalisedVelocity = rigidbody.velocity.normalized;
-			brakeVelocity = normalisedVelocity * acclSpeed;  // make the brake Vector3 value
-			
-			rigidbody.AddForce(brakeVelocity * avgOrbitVelocity/speed * speedAmp * Time.deltaTime);  // apply opposing brake force
-			
-		}
-
-		if (speed > (avgOrbitVelocity * 1.2) && speed > 0)
-			
-		{
-			brakeSpeed = speed - (avgOrbitVelocity);  // calculate the speed decrease
-			
-			normalisedVelocity = rigidbody.velocity.normalized;
-			brakeVelocity = normalisedVelocity * brakeSpeed;  // make the brake Vector3 value
-			
-			rigidbody.AddForce(-brakeVelocity * speed/avgOrbitVelocity * speedAmp * Time.deltaTime);  // apply opposing brake force
-		}
+		Debug.DrawRay(transform.position, new Vector3(directionToOrbitTarget.z * -1, rigidbody.velocity.normalized.y, directionToOrbitTarget.x), Color.green);
+		rigidbody.AddForce(new Vector3(directionToOrbitTarget.z * -1, rigidbody.velocity.normalized.y, directionToOrbitTarget.x) * (avgOrbitVelocity - speed) * speedAmp * Time.deltaTime);
+//		if (speed < (avgOrbitVelocity * minOrbitP) && speed > 0)
+//		{
+//			acclSpeed = speed + (avgOrbitVelocity);
+//			
+//			normalisedVelocity = rigidbody.velocity.normalized;
+//			brakeVelocity = normalisedVelocity * acclSpeed;  // make the brake Vector3 value
+//			
+//			rigidbody.AddForce(brakeVelocity * avgOrbitVelocity/speed * speedAmp * Time.deltaTime);  // apply opposing brake force
+//			
+//		}
+//
+//		if (speed > (avgOrbitVelocity * maxOrbitP) && speed > 0)
+//			
+//		{
+//			brakeSpeed = speed - (avgOrbitVelocity);  // calculate the speed decrease
+//			
+//			normalisedVelocity = rigidbody.velocity.normalized;
+//			brakeVelocity = normalisedVelocity * brakeSpeed;  // make the brake Vector3 value
+//			
+//			rigidbody.AddForce(-brakeVelocity * speed/avgOrbitVelocity * speedAmp * Time.deltaTime);  // apply opposing brake force
+//		}
 	}
 
 	public void clampDistance()
 	{
 		distance = Vector3.Distance(this.transform.position, orbitTarget.transform.position);
+
 //		Debug.Log ("Distance to Sun: " + distance);
+
 		deltaPosition = this.transform.position - orbitTarget.transform.position;
 		
 		//		Debug.DrawLine(this.transform.position, deltaPosition * 0.8f, Color.red); 
 		//
 //		Debug.DrawRay(transform.position, -deltaPosition, Color.red);
 
-		if(distance < orbitDistance * 0.8f)
-		{
-			rigidbody.AddForce(deltaPosition.normalized * orbitDistance/distance * distanceAmp * Time.deltaTime);
-		}
-		
-		if(distance > orbitDistance * 1.2f)
-		{
-			rigidbody.AddForce(-deltaPosition.normalized * distance/orbitDistance * distanceAmp * Time.deltaTime);
-		}
+		float diff = orbitDistance - distance;
+
+		rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp * Time.deltaTime);
+//
+//		if(distance < orbitDistance * minOrbitP)
+//		{
+//			rigidbody.AddForce(deltaPosition.normalized * orbitDistance/distance * distanceAmp * Time.deltaTime);
+//		}
+//		
+//		if(distance > orbitDistance * maxOrbitP)
+//		{
+////			Debug.Log ("Pushing force str: " + (distance/orbitDistance * distanceAmp * Time.deltaTime));
+//			rigidbody.AddForce(-deltaPosition.normalized * distance/orbitDistance * distanceAmp * Time.deltaTime);
+//		}
 	}
 }

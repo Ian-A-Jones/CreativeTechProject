@@ -10,7 +10,7 @@ public class SpaceManager : MonoBehaviour
 	//How far planets should spawn
 	public float posRange;
 
-	//GravitationalConstant
+	//Gravitational Constant
 	public static double GRAVITYCONSTANT = 1;
 
 	//Gravity Scalar
@@ -31,7 +31,7 @@ public class SpaceManager : MonoBehaviour
 	//Scale the planets to make them larger
 	public float massRange;
 
-	public float scale = 1;
+	public static float planetSizeScale = 10000;
 
 	public float timeScale = 1;
 
@@ -98,17 +98,17 @@ public class SpaceManager : MonoBehaviour
 
 		bodies = new List<SpaceObject>();
 
-		spawnBody("Sun", planetTemplate, Vector3.zero, PStats.SunMass, PStats.SunDiam, null);
+		spawnBody("Sun", planetTemplate, Vector3.zero, PStats.SunMass, PStats.SunDiam, null, 0 ,0);
 
-//		spawnBody("Mercury", planetTemplate, new Vector3(PStats.MercuryDist, 0, 0), PStats.MercuryMass, PStats.MercuryDiam, bodies[0]);
+//		spawnBody("Mercury", planetTemplate, new Vector3(PStats.MercuryDist, 0, 0), PStats.MercuryMass, PStats.MercuryDiam, bodies[0], 0.8f, 1.2f);
 
-//		spawnBody("Venus", planetTemplate, new Vector3(PStats.VenusDist, 0, 0), PStats.VenusMass, PStats.VenusDiam, bodies[0]);
+//		spawnBody("Venus", planetTemplate, new Vector3(PStats.VenusDist, 0, 0), PStats.VenusMass, PStats.VenusDiam, bodies[0], 0.8f, 1.2f);
 
-		spawnBody("Earth", planetTemplate, new Vector3(PStats.EarthDist, 0, 0), PStats.EarthMass, PStats.EarthDiam, bodies[0]);
+		spawnBody("Earth", planetTemplate, new Vector3(PStats.EarthDist, 0, 0), PStats.EarthMass, PStats.EarthDiam, bodies[0], 0.8f, 1.2f);
 
-		spawnBody("Moon", planetTemplate, new Vector3(PStats.MoonDist, 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1]);
+		spawnBody("Moon", planetTemplate, new Vector3(PStats.MoonDist, 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1], 0.95f, 1.1f);
 
-//		spawnBody("Mars", planetTemplate, new Vector3(PStats.MarsDist, 0, 0), PStats.MarsMass, PStats.MarsDiam, bodies[0]);
+//		spawnBody("Mars", planetTemplate, new Vector3(PStats.MarsDist, 0, 0), PStats.MarsMass, PStats.MarsDiam, bodies[0], 0.8f, 1.2f);
 
 //		spawnBody("Jupiter", planetTemplate, new Vector3(PStats.JupiterDist, 0, 0), PStats.JupiterMass, PStats.JupiterDiam, bodies[0]);
 
@@ -119,6 +119,12 @@ public class SpaceManager : MonoBehaviour
 //		spawnBody("Neptune", planetTemplate, new Vector3(PStats.NeptuneDist, 0, 0), PStats.NeptuneMass, PStats.NeptuneDiam, bodies[0]);
 
 //		spawnBody("Pluto", planetTemplate, new Vector3(PStats.PlutoDist, 0, 0), PStats.PlutoMass, PStats.PlutoDiam, bodies[0]);
+
+
+		foreach(SpaceObject sO in bodies)
+		{
+			sO.rigidbody.AddForce(0,0, sO.avgOrbitVelocity);
+		}
 
 		Time.timeScale = timeScale;
 	}
@@ -477,7 +483,7 @@ public class SpaceManager : MonoBehaviour
 					Debug.LogError("bodies[sB] is null");
 				}
 				
-				if(fB < sB)
+				if(fB < sB && (bodies[fB].canOrbit(bodies[sB]) || bodies[sB].canOrbit(bodies[fB])))
 				{	
 					//Find vector from first body to second body
 					deltaPosition = bodies[sB].transform.position - bodies[fB].transform.position;
@@ -515,21 +521,26 @@ public class SpaceManager : MonoBehaviour
 							* (float)GRAVITYCONSTANT * gForceAmp;
 
 						forceDueToGrav/= (relDistance);
-
+						
 						if(bodies[fB].canOrbit(bodies[sB]))
 						{
+							if(bodies[fB].orbitTarget && bodies[fB].orbitTarget == bodies[sB])
+							{
+								bodies[fB].directionToOrbitTarget = direction;
+							}
 							bodies[fB].rigidbody.AddForce(direction * forceDueToGrav * Time.deltaTime);
-							bodies[fB].maintainOrbit();
-
 						}
+
 
 						if(bodies[sB].canOrbit(bodies[fB]))
 						{
+							if(bodies[sB].orbitTarget && bodies[sB].orbitTarget == bodies[fB])
+							{
+								bodies[sB].directionToOrbitTarget = direction * -1;
+							}
 							bodies[sB].rigidbody.AddForce(direction * -1 * forceDueToGrav * Time.deltaTime);
-							bodies[sB].maintainOrbit();
 						}
-					}
-														
+					}											
 				}
 			}
 		}
@@ -538,7 +549,7 @@ public class SpaceManager : MonoBehaviour
 		{
 			COMPos /= totalMass;
 
-			CentreOfMassRef.transform.localScale = new Vector3(totalMass, totalMass, totalMass);
+			CentreOfMassRef.transform.localScale = new Vector3(totalMass, totalMass, totalMass)/100;
 
 			CentreOfMassRef.transform.position = COMPos;
 		}
