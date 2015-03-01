@@ -40,7 +40,7 @@ public static class PStats
 	public static float SaturnMass	= 95.159f;
 	public static float UranusMass 	= 14.536f;
 	public static float NeptuneMass	= 17.147f;
-	public static float PlutoMass	= 0.0022f;
+	public static float PlutoMass	= 0.022f;
 	public static float MoonMass	= 0.123f;
 	
 	#endregion

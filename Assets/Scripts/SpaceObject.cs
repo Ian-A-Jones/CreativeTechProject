@@ -6,11 +6,12 @@ public class SpaceObject : MonoBehaviour
 	//Member Variables
 	//Maximum masss a body can Have
 	public static int maxMass = 50;
-	public static float pScale = 1;
-	public static float sScale = 10;
+	static float pScale = 1;
+	static float meshScale = 20;
+	static float oTScale = 100;
 	public static float TwoBodyMassScaling = 100;
 	public const float AMP = 100f;
-	public static float speedAmp =  1, distanceAmp = 5;
+	public static float speedAmp =  1, distanceAmp = 20;
 	//IF a SpaceObject has an orbit target then it will only be affected by it's Gravity
 	public SpaceObject orbitTarget = null;
 	public bool orbitOn = true;
@@ -30,6 +31,8 @@ public class SpaceObject : MonoBehaviour
 
 	public Vector3 directionToOrbitTarget;
 
+	public float diff;
+
 	public void init(string name, float mass, float diam, SpaceObject _OrbitTarget, float _MinOrbitP, float _MaxOrbitP)
 	{
 		this.name = name;
@@ -39,6 +42,9 @@ public class SpaceObject : MonoBehaviour
 		//Orbit Target logic
 		if(_OrbitTarget != null)
 		{
+			//Make it larger
+			GetComponentInChildren<MeshRenderer>().transform.localScale *= oTScale;
+
 			this.orbitDistance = Mathf.Abs(this.transform.position.x - _OrbitTarget.transform.position.x);
 
 			Debug.Log (this.name + " is going to oribit " + _OrbitTarget.name);
@@ -54,29 +60,7 @@ public class SpaceObject : MonoBehaviour
 			minOrbitP = _MinOrbitP;
 			maxOrbitP = _MaxOrbitP;
 			
-//			if( diff < 1)
-//			{
-//				this.avgOrbitVelocity = this.findOVWithMass(_OrbitTarget);
-//			}
-//			else
-//			{
-				this.avgOrbitVelocity = this.findSimpleOrbitVelocity(_OrbitTarget);
-//			}
-			
-			if(_OrbitTarget.orbitTarget != null)
-			{
-				orbitDistance/=2;
-//				if( diff < 1)
-//				{
-//					this.avgOrbitVelocity += _OrbitTarget.findOVWithMass(_OrbitTarget.orbitTarget);
-//				}
-//				else
-//				{
-					this.avgOrbitVelocity += _OrbitTarget.findSimpleOrbitVelocity(_OrbitTarget.orbitTarget);
-//				}
-			}
-
-//			this.rigidbody.AddForce(0,0, this.avgOrbitVelocity + _OrbitTarget.avgOrbitVelocity, ForceMode.Force);
+			this.avgOrbitVelocity = this.findSimpleOrbitVelocity(_OrbitTarget);
 
 			Debug.Log ("Avg V : " + avgOrbitVelocity);
 
@@ -116,19 +100,8 @@ public class SpaceObject : MonoBehaviour
 		
 		rigidbody.mass = massToSet;
 
-		if(name != "Sun")
-		{
-			Debug.Log("Planet size");
-			transform.localScale = threeAsOne(diameter);
-			GetComponentInChildren<MeshRenderer>().transform.localScale = threeAsOne(diameter * 
-			                                                                         SpaceManager.planetSizeScale);
-		}
-		else
-		{
-			Debug.Log ("Sun Size");
-			transform.localScale = threeAsOne(diameter);
-			GetComponentInChildren<MeshRenderer>().transform.localScale = threeAsOne(diameter * sScale);
-		}
+		transform.localScale = threeAsOne(diameter);
+		GetComponentInChildren<MeshRenderer>().transform.localScale = threeAsOne(diameter * meshScale);
 	}
 
 	//Returns vector3 with x,y,z as all values
@@ -208,8 +181,10 @@ public class SpaceObject : MonoBehaviour
 
 //		Debug.DrawRay(this.transform.position, deltaPosition.normalized, Color.red);
 
-		Debug.DrawRay(transform.position, new Vector3(directionToOrbitTarget.z * -1, rigidbody.velocity.normalized.y, directionToOrbitTarget.x), Color.green);
+//		Debug.DrawRay(transform.position, new Vector3(directionToOrbitTarget.z * -1, rigidbody.velocity.normalized.y, directionToOrbitTarget.x), Color.green);
 		rigidbody.AddForce(new Vector3(directionToOrbitTarget.z * -1, rigidbody.velocity.normalized.y, directionToOrbitTarget.x) * (avgOrbitVelocity - speed) * speedAmp * Time.deltaTime);
+
+		rigidbody.velocity = Vector3.ClampMagnitude(rigidbody.velocity, avgOrbitVelocity * 7f);
 //		if (speed < (avgOrbitVelocity * minOrbitP) && speed > 0)
 //		{
 //			acclSpeed = speed + (avgOrbitVelocity);
@@ -245,9 +220,9 @@ public class SpaceObject : MonoBehaviour
 		//
 //		Debug.DrawRay(transform.position, -deltaPosition, Color.red);
 
-		float diff = orbitDistance - distance;
+		diff = orbitDistance - distance;
 
-		rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp * Time.deltaTime);
+		rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp * PStats.AUScaling * Time.deltaTime);
 //
 //		if(distance < orbitDistance * minOrbitP)
 //		{
