@@ -94,7 +94,6 @@ public class SpaceManager : MonoBehaviour
 	// Use this for initialization
 	void Start () 
 	{
-//		SpaceObject.pScale = scale;
 
 		bodies = new List<SpaceObject>();
 
@@ -104,16 +103,17 @@ public class SpaceManager : MonoBehaviour
 
 		spawnBody("Venus", planetTemplate, new Vector3(PStats.VenusDist, 0, 0), PStats.VenusMass, PStats.VenusDiam, bodies[0], 0.8f, 1.2f);
 
-		spawnBody("Earth", planetTemplate, new Vector3(PStats.EarthDist , 0, 0), PStats.EarthMass, PStats.EarthDiam, bodies[0], 0.8f, 1.2f);
+		spawnBody("Earth", planetTemplate, new Vector3(PStats.EarthDist, 0, 0), PStats.EarthMass, PStats.EarthDiam, bodies[0], 10);
 
-		spawnBody("Moon", planetTemplate, new Vector3(PStats.MoonDist, 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1], 0.95f, 1.1f);
+		spawnBody("Moon", planetTemplate, new Vector3(PStats.MoonDist, 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1], 1);
 
-//		spawnBody("Earth", planetTemplate, new Vector3(PStats.EarthDist * 2, 0, 0), PStats.EarthMass, PStats.EarthDiam, bodies[bodies.Count-3], 0.8f, 1.2f);
-//
-//		spawnBody("Moon", planetTemplate, new Vector3(PStats.MoonDist * 2, 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1], 0.95f, 1.1f);
+//		spawnBody("Earth2", planetTemplate, new Vector3(PStats.EarthDist * 1.5f, 0, 0), PStats.EarthMass, PStats.EarthDiam, bodies[bodies.Count-3], 0.8f, 1.2f);
 
+//		spawnBody("Moon", planetTemplate, new Vector3(PStats.MoonDist * , 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1], 0.95f, 1.1f);
 
-		spawnBody("Mars", planetTemplate, new Vector3(PStats.MarsDist, 0, 0), PStats.MarsMass, PStats.MarsDiam, bodies[0], 0.8f, 1.2f);
+		spawnBody("Mars", planetTemplate, new Vector3(PStats.MarsDist, 0, 0), PStats.MarsMass, PStats.MarsDiam, bodies[0], 14);
+
+		spawnBody("Deimos", planetTemplate, new Vector3(PStats.DeimosDist, 0, 0), PStats.DeimosMass, PStats.DeimosDiam, bodies[bodies.Count-1], 0.8f, 1.2f);
 
 		spawnBody("Jupiter", planetTemplate, new Vector3(PStats.JupiterDist, 0, 0), PStats.JupiterMass, PStats.JupiterDiam, bodies[0], 0.8f, 1.2f);
 
@@ -183,6 +183,16 @@ public class SpaceManager : MonoBehaviour
 
 		bodies[bodies.Count-1].init(name, mass, diam, _OrbitTarget, minOrbitP, maxOrbitP);
 
+	}
+
+	void spawnBody(string name, SpaceObject bodyTemplate, Vector3 pos, float mass, float diam, SpaceObject _OrbitTarget, float orbitPeriod)
+	{
+		
+		bodies.Add(Instantiate(bodyTemplate, new Vector3(PStats.inAUnits(pos.x), pos.y, pos.z), Quaternion.identity) 
+		           as SpaceObject);	
+		
+		bodies[bodies.Count-1].init(name, mass, diam, _OrbitTarget, orbitPeriod);
+		
 	}
 
 	void Update()

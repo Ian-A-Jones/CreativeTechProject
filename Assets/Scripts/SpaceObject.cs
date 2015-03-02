@@ -7,10 +7,8 @@ public class SpaceObject : MonoBehaviour
 	//Maximum masss a body can Have
 	public static int maxMass = 50;
 	static float pScale = 1;
-	static float meshScale = 20;
-	static float oTScale = 100;
-	public static float TwoBodyMassScaling = 100;
-	public const float AMP = 100f;
+	static float meshScale = 10;
+	static float oTScale = 300;
 	public static float speedAmp =  1, distanceAmp = 20;
 	//IF a SpaceObject has an orbit target then it will only be affected by it's Gravity
 	public SpaceObject orbitTarget = null;
@@ -37,7 +35,7 @@ public class SpaceObject : MonoBehaviour
 	{
 		this.name = name;
 		
-		this.setMassAndSize(mass, PStats.inAUnits(diam));
+		this.setMassAndSize(mass, PStats.inEUnits(diam));
 		
 		//Orbit Target logic
 		if(_OrbitTarget != null)
@@ -49,7 +47,6 @@ public class SpaceObject : MonoBehaviour
 
 			Debug.Log (this.name + " is going to oribit " + _OrbitTarget.name);
 			this.orbitTarget = _OrbitTarget;	
-
 
 //			thsis.transform.parent = orbitTarget.transform;
 			
@@ -70,6 +67,40 @@ public class SpaceObject : MonoBehaviour
 		}
 	}
 
+	public void init(string name, float mass, float diam, SpaceObject _OrbitTarget, float orbitPeriod)
+	{
+		this.name = name;
+		
+		this.setMassAndSize(mass, PStats.inAUnits(diam));
+		
+		//Orbit Target logic
+		if(_OrbitTarget != null)
+		{
+			//Make it larger
+			GetComponentInChildren<MeshRenderer>().transform.localScale *= oTScale;
+			
+			this.orbitDistance = Mathf.Abs(this.transform.position.x - _OrbitTarget.transform.position.x);
+			
+			Debug.Log (this.name + " is going to oribit " + _OrbitTarget.name);
+			this.orbitTarget = _OrbitTarget;	
+			
+			
+			//			thsis.transform.parent = orbitTarget.transform;
+			
+			float diff = Mathf.Abs(this.rigidbody.mass - _OrbitTarget.rigidbody.mass);
+			
+			Debug.Log ("Mass difference of " + name + " and " + _OrbitTarget.name + ": " + diff);
+
+			this.avgOrbitVelocity = this.findSimpleOrbitVelocity(_OrbitTarget, orbitPeriod);
+			
+			Debug.Log ("Avg V : " + avgOrbitVelocity);
+			
+			GetComponentInChildren<TrailRenderer>().time = 8f*orbitDistance/avgOrbitVelocity; //Magic number translated speed of object into a estimated time for trail to appear
+			GetComponentInChildren<TrailRenderer>().startWidth = GetComponentInChildren<MeshRenderer>().transform.localScale.x*transform.localScale.x;
+			GetComponentInChildren<TrailRenderer>().endWidth = GetComponentInChildren<MeshRenderer>().transform.localScale.x*transform.localScale.x;
+		}
+	}
+
 	void FixedUpdate()
 	{
 		if(orbitTarget)
@@ -82,14 +113,16 @@ public class SpaceObject : MonoBehaviour
 	public bool canOrbit(SpaceObject otherSObj)
 	{
 		if(orbitOn && orbitTarget == null || orbitTarget == otherSObj || 
-		   Vector3.Distance(this.transform.position, otherSObj.transform.position) < 2)
+		   Vector3.Distance(this.transform.position, otherSObj.transform.position) < 25)
 		{
-//			Debug.Log (this.name + " can orbit " + otherSObj.name);
+//			if(this.name == "Moon")
+//				Debug.Log (this.name + " can orbit " + otherSObj.name);
 			return true;
 		}
 		else
 		{
-//			Debug.Log(this.name + " cannot orbit " + otherSObj.name);
+//			if(this.name == "Moon")
+//				Debug.Log(this.name + " cannot orbit " + otherSObj.name);
 			return false;
 		}
 	}
@@ -125,7 +158,7 @@ public class SpaceObject : MonoBehaviour
 
 		OrbitPeriod /= (otherBody.rigidbody.mass * (float)SpaceManager.GRAVITYCONSTANT * SpaceManager.gForceAmp);	
 		OrbitPeriod = Mathf.Sqrt(OrbitPeriod);
-		
+
 		OrbitPeriod *= 2*Mathf.PI;
 		
 		Debug.Log ("Orbit period: " + OrbitPeriod);
@@ -135,7 +168,24 @@ public class SpaceObject : MonoBehaviour
 		Debug.Log ("Orbit velocity: " + orbitVelocity);
 	
 		return orbitVelocity;
-	}  
+	}
+
+	public float findSimpleOrbitVelocity(SpaceObject otherBody, float orbitPeriod)
+	{
+		Debug.Log ("Simple OV equation");
+		
+		float semiMajorAxis = Vector3.Distance(this.transform.position, otherBody.transform.position);
+		
+		float orbitVelocity = 2*Mathf.PI*semiMajorAxis;
+
+		Debug.Log ("Orbit period: " + orbitPeriod);
+		
+		orbitVelocity /= (orbitPeriod/2);
+		
+		Debug.Log ("Orbit velocity: " + orbitVelocity);
+		
+		return orbitVelocity;
+	}
 
 	/*Similar to the above function this finds the orbital speed of a body but is used when the masses are Vastly 
 	  different e.g. Sun and Earth*/
@@ -181,10 +231,10 @@ public class SpaceObject : MonoBehaviour
 
 //		Debug.DrawRay(this.transform.position, deltaPosition.normalized, Color.red);
 
-//		Debug.DrawRay(transform.position, new Vector3(directionToOrbitTarget.z * -1, rigidbody.velocity.normalized.y, directionToOrbitTarget.x), Color.green);
-		rigidbody.AddForce(new Vector3(directionToOrbitTarget.z * -1, rigidbody.velocity.normalized.y, directionToOrbitTarget.x) * (avgOrbitVelocity - speed) * speedAmp * Time.deltaTime);
+		Debug.DrawRay(transform.position, new Vector3(directionToOrbitTarget.z * -1, rigidbody.velocity.normalized.y, directionToOrbitTarget.x), Color.green);
+		rigidbody.AddForce(new Vector3(directionToOrbitTarget.z * -1, 0, directionToOrbitTarget.x) * (avgOrbitVelocity - speed) * speedAmp * Time.deltaTime);
 
-		rigidbody.velocity = Vector3.ClampMagnitude(rigidbody.velocity, avgOrbitVelocity * 7f);
+		//rigidbody.velocity = Vector3.ClampMagnitude(rigidbody.velocity, avgOrbitVelocity * 7f);
 //		if (speed < (avgOrbitVelocity * minOrbitP) && speed > 0)
 //		{
 //			acclSpeed = speed + (avgOrbitVelocity);
