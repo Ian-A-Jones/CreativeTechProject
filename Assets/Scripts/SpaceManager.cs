@@ -18,6 +18,7 @@ public class SpaceManager : MonoBehaviour
 
 	//Prefab used for spawning planets
 	public SpaceObject planetTemplate;
+	public SpaceObject sunTemplate;
 	public PlayerCam camPlayerTemplate;
 
 	//Reference to player
@@ -97,7 +98,7 @@ public class SpaceManager : MonoBehaviour
 
 		bodies = new List<SpaceObject>();
 
-		spawnBody("Sun", planetTemplate, Vector3.zero, PStats.SunMass, PStats.SunDiam, null, 0 ,0);
+		spawnBody("Sun", sunTemplate, Vector3.zero, PStats.SunMass, PStats.SunDiam, null, 0 , 0);
 
 		spawnBody("Mercury", planetTemplate, new Vector3(PStats.MercuryDist, 0, 0), PStats.MercuryMass, PStats.MercuryDiam, bodies[0], 0.8f, 1.2f);
 

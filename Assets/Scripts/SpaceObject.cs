@@ -8,7 +8,7 @@ public class SpaceObject : MonoBehaviour
 	public static int maxMass = 50;
 	static float pScale = 1;
 	static float meshScale = 10;
-	static float oTScale = 300;
+	static float oTScale = 600;
 	public static float speedAmp =  1, distanceAmp = 20;
 	//IF a SpaceObject has an orbit target then it will only be affected by it's Gravity
 	public SpaceObject orbitTarget = null;
@@ -231,7 +231,7 @@ public class SpaceObject : MonoBehaviour
 
 //		Debug.DrawRay(this.transform.position, deltaPosition.normalized, Color.red);
 
-		Debug.DrawRay(transform.position, new Vector3(directionToOrbitTarget.z * -1, rigidbody.velocity.normalized.y, directionToOrbitTarget.x), Color.green);
+//		Debug.DrawRay(transform.position, new Vector3(directionToOrbitTarget.z * -1, rigidbody.velocity.normalized.y, directionToOrbitTarget.x), Color.green);
 		rigidbody.AddForce(new Vector3(directionToOrbitTarget.z * -1, 0, directionToOrbitTarget.x) * (avgOrbitVelocity - speed) * speedAmp * Time.deltaTime);
 
 		//rigidbody.velocity = Vector3.ClampMagnitude(rigidbody.velocity, avgOrbitVelocity * 7f);
