@@ -26,7 +26,7 @@ public static class PStats
 
 	//Moons
 	public static float MoonDiam	= 0003340;
-	public static float DeimosDiam 	= 0000012;
+	public static float DeimosDiam 	= 0003200;
 	public static float Phobos		= 0000560;
 
 	#endregion
@@ -35,21 +35,23 @@ public static class PStats
 
 	//All of these values multipied by Earths actual mass will give there mass
 
-	public static float SunMass		= 333000;
-	public static float MercuryMass = 0.0553f;
-	public static float VenusMass 	= 0.815f;
-	public static float EarthMass 	= 1f;
-	public static float MarsMass	= 0.107f;
-	public static float JupiterMass	= 371.83f;
-	public static float SaturnMass	= 95.159f;
-	public static float UranusMass 	= 14.536f;
-	public static float NeptuneMass	= 17.147f;
-	public static float PlutoMass	= 0.022f;
+	public static float SunMass		= 300;
+	public static float MercuryMass = 0.5f;
+	public static float VenusMass 	= 3;
+	public static float EarthMass 	= 5f;
+	public static float MarsMass	= 4;
+	public static float JupiterMass	= 50;
+	public static float SaturnMass	= 20;
+	public static float UranusMass 	= 6;
+	public static float NeptuneMass	= 7;
+	public static float PlutoMass	= 1f;
 
 	//Moons
-	public static float MoonMass	= 0.123f;
-	public static float DeimosMass	= 0.247f;
-	
+	public static float MoonMass	= 0.3f;
+	public static float DeimosMass	= 0.5f;
+
+	//Rings
+	public static float AstMass		= 0.1f;
 	#endregion
 
 	#region Distance from Sun(Km)
@@ -67,6 +69,9 @@ public static class PStats
 	//Moons
 	public static float MoonDist	= 0150005696;
 	public static float DeimosDist 	= 0227963458;
+
+	//Rings
+	public static float ABelt		= 0503135000;
 
 	#endregion 
 

@@ -10,15 +10,13 @@ public class SpaceManager : MonoBehaviour
 	//How far planets should spawn
 	public float posRange;
 
-	//Gravitational Constant
-	public static double GRAVITYCONSTANT = 1;
-
 	//Gravity Scalar
 	public static float gForceAmp = 1;
 
 	//Prefab used for spawning planets
 	public SpaceObject planetTemplate;
 	public SpaceObject sunTemplate;
+	public SpaceObject ringTemplate;
 	public PlayerCam camPlayerTemplate;
 
 	//Reference to player
@@ -98,39 +96,41 @@ public class SpaceManager : MonoBehaviour
 
 		bodies = new List<SpaceObject>();
 
-		spawnBody("Sun", sunTemplate, Vector3.zero, PStats.SunMass, PStats.SunDiam, null, 0 , 0);
+		spawnBody("Sun", SpaceObject.bodyType.Sun, Vector3.zero, PStats.SunMass, PStats.SunDiam, null, 1);
 
-		spawnBody("Mercury", planetTemplate, new Vector3(PStats.MercuryDist, 0, 0), PStats.MercuryMass, PStats.MercuryDiam, bodies[0], 0.8f, 1.2f);
+		spawnBody("Mercury", SpaceObject.bodyType.planet, new Vector3(PStats.MercuryDist, 0, 0), PStats.MercuryMass, PStats.MercuryDiam, bodies[0], 50);
 
-		spawnBody("Venus", planetTemplate, new Vector3(PStats.VenusDist, 0, 0), PStats.VenusMass, PStats.VenusDiam, bodies[0], 0.8f, 1.2f);
+		spawnBody("Venus", SpaceObject.bodyType.planet, new Vector3(PStats.VenusDist, 0, 0), PStats.VenusMass, PStats.VenusDiam, bodies[0], 50);
 
-		spawnBody("Earth", planetTemplate, new Vector3(PStats.EarthDist, 0, 0), PStats.EarthMass, PStats.EarthDiam, bodies[0], 10);
+		spawnBody("Earth", SpaceObject.bodyType.planet, new Vector3(PStats.EarthDist, 0, 0), PStats.EarthMass, PStats.EarthDiam, bodies[0], 50);
 
-		spawnBody("Moon", planetTemplate, new Vector3(PStats.MoonDist, 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1], 1);
+		spawnBody("Moon", SpaceObject.bodyType.planet, new Vector3(PStats.MoonDist, 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1], 10);
 
-//		spawnBody("Earth2", planetTemplate, new Vector3(PStats.EarthDist * 1.5f, 0, 0), PStats.EarthMass, PStats.EarthDiam, bodies[bodies.Count-3], 0.8f, 1.2f);
+		//		spawnBody("Earth2", SpaceObject.bodyType.planet, new Vector3(PStats.EarthDist * 1.5f, 0, 0), PStats.EarthMass, PStats.EarthDiam, bodies[bodies.Count-3], 0.8f, 1.2f);
 
-//		spawnBody("Moon", planetTemplate, new Vector3(PStats.MoonDist * , 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1], 0.95f, 1.1f);
+		//		spawnBody("Moon", SpaceObject.bodyType.planet, new Vector3(PStats.MoonDist * , 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1], 0.95f, 1.1f);
 
-		spawnBody("Mars", planetTemplate, new Vector3(PStats.MarsDist, 0, 0), PStats.MarsMass, PStats.MarsDiam, bodies[0], 14);
+		spawnBody("Mars", SpaceObject.bodyType.planet, new Vector3(PStats.MarsDist, 0, 0), PStats.MarsMass, PStats.MarsDiam, bodies[0], 50);
 
-		spawnBody("Deimos", planetTemplate, new Vector3(PStats.DeimosDist, 0, 0), PStats.DeimosMass, PStats.DeimosDiam, bodies[bodies.Count-1], 0.8f, 1.2f);
+		spawnBody("Deimos", SpaceObject.bodyType.planet, new Vector3(PStats.DeimosDist, 0, 0), PStats.DeimosMass, PStats.DeimosDiam, bodies[bodies.Count-1], 1);
 
-		spawnBody("Jupiter", planetTemplate, new Vector3(PStats.JupiterDist, 0, 0), PStats.JupiterMass, PStats.JupiterDiam, bodies[0], 0.8f, 1.2f);
+		spawnBody("Asteroids", SpaceObject.bodyType.Ring, new Vector3(PStats.ABelt, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[0], 50);
 
-		spawnBody("Saturn", planetTemplate, new Vector3(PStats.SaturnDist, 0, 0), PStats.SaturnMass, PStats.SaturnDiam, bodies[0], 0.8f, 1.2f);
+		spawnBody("Jupiter", SpaceObject.bodyType.planet, new Vector3(PStats.JupiterDist, 0, 0), PStats.JupiterMass, PStats.JupiterDiam, bodies[0], 50);
 
-		spawnBody("Uranus", planetTemplate, new Vector3(PStats.UranusDist, 0, 0), PStats.UranusMass, PStats.UranusDiam, bodies[0], 0.8f, 1.2f);
+		spawnBody("Saturn", SpaceObject.bodyType.planet, new Vector3(PStats.SaturnDist, 0, 0), PStats.SaturnMass, PStats.SaturnDiam, bodies[0], 50);
 
-		spawnBody("Neptune", planetTemplate, new Vector3(PStats.NeptuneDist, 0, 0), PStats.NeptuneMass, PStats.NeptuneDiam, bodies[0], 0.8f, 1.2f);
+		spawnBody("Uranus", SpaceObject.bodyType.planet, new Vector3(PStats.UranusDist, 0, 0), PStats.UranusMass, PStats.UranusDiam, bodies[0], 50);
 
-		spawnBody("Pluto", planetTemplate, new Vector3(PStats.PlutoDist, 0, 0), PStats.PlutoMass, PStats.PlutoDiam, bodies[0], 0.8f, 1.2f);
+		spawnBody("Neptune", SpaceObject.bodyType.planet, new Vector3(PStats.NeptuneDist, 0, 0), PStats.NeptuneMass, PStats.NeptuneDiam, bodies[0], 50);
+
+		spawnBody("Pluto", SpaceObject.bodyType.planet, new Vector3(PStats.PlutoDist, 0, 0), PStats.PlutoMass, PStats.PlutoDiam, bodies[0], 50);
 
 
-		foreach(SpaceObject sO in bodies)
-		{
-			sO.rigidbody.AddForce(0,0, sO.avgOrbitVelocity);
-		}
+//		foreach(SpaceObject sO in bodies)
+//		{
+//			sO.rigidbody.AddForce(0,0, sO.avgOrbitVelocity);
+//		}
 
 		Time.timeScale = timeScale;
 	}
@@ -176,24 +176,66 @@ public class SpaceManager : MonoBehaviour
 		AbsorbOnCollision.absorbOn = false;
 	}
 
-	void spawnBody(string name, SpaceObject bodyTemplate, Vector3 pos, float mass, float diam, SpaceObject _OrbitTarget, float minOrbitP, float maxOrbitP)
+	void bodyType(SpaceObject.bodyType bType, Vector3 pos)
 	{
-
-		bodies.Add(Instantiate(bodyTemplate, new Vector3(PStats.inAUnits(pos.x), pos.y, pos.z), Quaternion.identity) 
-		           as SpaceObject);	
-
-		bodies[bodies.Count-1].init(name, mass, diam, _OrbitTarget, minOrbitP, maxOrbitP);
 
 	}
 
-	void spawnBody(string name, SpaceObject bodyTemplate, Vector3 pos, float mass, float diam, SpaceObject _OrbitTarget, float orbitPeriod)
+	void spawnBody(string name, SpaceObject.bodyType bType, Vector3 pos, float mass, float diam, SpaceObject _OrbitTarget, float orbitPeriod)
 	{
-		
-		bodies.Add(Instantiate(bodyTemplate, new Vector3(PStats.inAUnits(pos.x), pos.y, pos.z), Quaternion.identity) 
-		           as SpaceObject);	
-		
-		bodies[bodies.Count-1].init(name, mass, diam, _OrbitTarget, orbitPeriod);
-		
+		switch(bType)
+		{
+		case SpaceObject.bodyType.planet:
+			
+			bodies.Add(Instantiate(planetTemplate, new Vector3(PStats.inAUnits(pos.x), pos.y, pos.z), Quaternion.identity) 
+			           as SpaceObject);	
+			
+			break;
+			
+		case SpaceObject.bodyType.Sun:
+			
+			bodies.Add(Instantiate(sunTemplate, new Vector3(PStats.inAUnits(pos.x), pos.y, pos.z), Quaternion.identity) 
+			           as SpaceObject);	
+			
+			break;
+			
+		case SpaceObject.bodyType.Ring:
+
+			Debug.Log(PStats.inAUnits(pos.x));
+
+
+			for(int i = 0; i < 100; i ++)
+			{
+
+				float randAngle = Random.value * 360;
+
+//				Debug.Log (randAngle);
+
+				float randDist = Random.Range(0,200) - 100;
+
+				float xPos = (PStats.inAUnits( pos.x) + randDist) * Mathf.Cos(randAngle);
+
+//				Debug.Log (xPos);
+
+				float zPos = (PStats.inAUnits( pos.x) + randDist) * Mathf.Sin(randAngle);
+
+//				Debug.Log (zPos);
+
+				bodies.Add(Instantiate(ringTemplate, new Vector3(xPos, 0, zPos), Quaternion.identity) 
+				           as SpaceObject);
+
+				mass += Random.Range(0, mass/4) - mass/8;
+
+				bodies[bodies.Count-1].init(name, bType, mass, diam, _OrbitTarget, orbitPeriod);
+			}
+			
+			break;
+		}
+
+		if(bType != SpaceObject.bodyType.Ring)
+		{
+			bodies[bodies.Count-1].init(name, bType, mass, diam, _OrbitTarget, orbitPeriod);
+		}
 	}
 
 	void Update()
@@ -534,7 +576,7 @@ public class SpaceManager : MonoBehaviour
 						}
 
 						forceDueToGrav = (bodies[fB].rigidbody.mass * bodies[sB].rigidbody.mass) 
-							* (float)GRAVITYCONSTANT * gForceAmp;
+							* gForceAmp;
 
 						forceDueToGrav/= (relDistance);
 						
