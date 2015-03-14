@@ -6,10 +6,10 @@ public class SpaceObject : MonoBehaviour
 	//Member Variables
 	//Maximum masss a body can Have
 	public static int maxMass = 50;
-	static float pScale = 1;
+	static float pScale = 5, rScale = 8, sScale = 1;
 	static float meshScale = 10;
-	static float oTScale = 600;
-	public static float speedAmp =  20, distanceAmp = 200;
+	static float oTScale = 25;
+	public static float speedAmp =  20, distanceAmp = 1000;
 	//IF a SpaceObject has an orbit target then it will only be affected by it's Gravity
 	public SpaceObject orbitTarget = null;
 	public bool orbitOn = true;
@@ -74,11 +74,19 @@ public class SpaceObject : MonoBehaviour
 		}
 	}
 
+	public void Start()
+	{
+		StartCoroutine(maintainOrbit());
+	}
+
 	void calcTrail()
 	{
-		GetComponentInChildren<TrailRenderer>().time = 2*Mathf.PI*distance/speed; //Magic number translated speed of object into a estimated time for trail to appear
-		GetComponentInChildren<TrailRenderer>().startWidth = GetComponentInChildren<MeshRenderer>().transform.localScale.x*transform.localScale.x;
-		GetComponentInChildren<TrailRenderer>().endWidth = GetComponentInChildren<MeshRenderer>().transform.localScale.x*transform.localScale.x;
+		if(GetComponentInChildren<TrailRenderer>().enabled)
+		{
+			GetComponentInChildren<TrailRenderer>().time = 2*Mathf.PI*distance/speed; //Magic number translated speed of object into a estimated time for trail to appear
+			GetComponentInChildren<TrailRenderer>().startWidth = GetComponentInChildren<MeshRenderer>().transform.localScale.x*transform.localScale.x;
+			GetComponentInChildren<TrailRenderer>().endWidth = GetComponentInChildren<MeshRenderer>().transform.localScale.x*transform.localScale.x;
+		}
 	}
 
 	void FixedUpdate()
@@ -86,7 +94,6 @@ public class SpaceObject : MonoBehaviour
 		if(orbitTarget)
 		{
 //			Debug.Log ("Maintaning Orbit");
-			maintainOrbit();
 		}
 	}
 
@@ -110,19 +117,30 @@ public class SpaceObject : MonoBehaviour
 	public void setMassAndSize(float massToSet, float diameter)
 	{
 //		massToSet = Mathf.Clamp(massToSet, 0, maxMass);
-		
+
+		rigidbody.mass = massToSet;
+
 		switch(bType)
 		{
-			case bodyType.planet:
-				rigidbody.mass = massToSet;
-				break;
-			case bodyType.Sun:
-				rigidbody.mass = massToSet;
-				break;
-		}
+		case bodyType.planet:
 
-		transform.localScale = threeAsOne(diameter);
-		GetComponentInChildren<MeshRenderer>().transform.localScale = threeAsOne(diameter * meshScale);
+			transform.localScale = threeAsOne(diameter * pScale);
+			GetComponentInChildren<MeshRenderer>().transform.localScale = threeAsOne(diameter * meshScale * pScale);
+
+			break;
+		case bodyType.Sun:
+
+			transform.localScale = threeAsOne(diameter * sScale);
+			GetComponentInChildren<MeshRenderer>().transform.localScale = threeAsOne(diameter * meshScale * sScale);
+
+			break;
+		case bodyType.Ring:
+
+			transform.localScale = threeAsOne(diameter * rScale);
+			GetComponentInChildren<MeshRenderer>().transform.localScale = threeAsOne(diameter * meshScale * rScale);
+
+			break;
+		}
 	}
 
 	//Returns vector3 with x,y,z as all values
@@ -218,18 +236,32 @@ public class SpaceObject : MonoBehaviour
 		return OrbitVelocity;
 	}
 	
-	public void maintainOrbit()
+	public IEnumerator maintainOrbit()
 	{
-		if(orbitTarget != null)
+		while(this.enabled)
 		{
-			clampVelocity();
-			clampDistance();
-
-			if(bType != bodyType.Ring)
+			if(orbitTarget != null)
 			{
+				clampVelocity();
+				clampDistance();
+
 				calcTrail();
 			}
 
+			switch(bType)
+			{
+				case bodyType.planet:
+					yield return null;
+					break;
+
+				case bodyType.Sun:
+					yield return null;
+					break;
+
+				case bodyType.Ring:
+					yield return new WaitForSeconds(0.5f);
+					break;
+			}
 		}
 	}
 

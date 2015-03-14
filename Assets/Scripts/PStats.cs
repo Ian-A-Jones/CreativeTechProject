@@ -35,7 +35,7 @@ public static class PStats
 
 	//All of these values multipied by Earths actual mass will give there mass
 
-	public static float SunMass		= 300;
+	public static float SunMass		= 500;
 	public static float MercuryMass = 0.5f;
 	public static float VenusMass 	= 3;
 	public static float EarthMass 	= 5f;
@@ -56,29 +56,34 @@ public static class PStats
 
 	#region Distance from Sun(Km)
 
-	public static float MercuryDist = 0057910000;
-	public static float VenusDist 	= 0108942780;
-	public static float EarthDist 	= 0149600000;
-	public static float MarsDist	= 0227940000;
-	public static float JupiterDist	= 0778330000;
-	public static float SaturnDist	= 1424600000;
-	public static float UranusDist 	= 2873550000;
-	public static float NeptuneDist	= 4501000000;
-	public static float PlutoDist	= 5945900000;
+	public static float MercuryDist = 38.7f;
+	public static float VenusDist 	= 72.8f;
+	public static float EarthDist 	= 100;
+	public static float MarsDist	= 152.36f;
+	public static float JupiterDist	= 520.274f;
+	public static float SaturnDist	= 952.2728f;
+	public static float UranusDist 	= 1920.822f;
+	public static float NeptuneDist	= 3008.69f;
+	public static float PlutoDist	= 3974.532f;
 
 	//Moons
-	public static float MoonDist	= 0150005696;
-	public static float DeimosDist 	= 0227963458;
+	public static float MoonDist	= 100.27f;
+	public static float DeimosDist 	= 152.382f;
 
 	//Rings
-	public static float ABelt		= 0503135000;
+	public static float ABelt		= 336.32f;
+	public static float JBelt		= 559f;
+	public static float SBelt		= 991f;
+	public static float UBelt		= 1959f;
+	public static float NBelt		= 3047.4f;
+
 
 	#endregion 
 
 	//Earth Units = Any unit in Km/Earth's Diameter
 	public static float inAUnits(float val)
 	{
-		return (val/EarthDist) * AUScaling * DistScale;
+		return (val/0149600000) * AUScaling * DistScale;
 	}
 
 	public static float inEUnits(float val)

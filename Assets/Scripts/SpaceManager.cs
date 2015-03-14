@@ -69,6 +69,7 @@ public class SpaceManager : MonoBehaviour
 	Vector3 spawnVelocity;
 
 	List<SpaceObject> bodies;
+	List<SpaceObject> Rings;
 	
 	//Variables for Inter-planetary interaction
 	Vector3 deltaPosition;
@@ -90,39 +91,61 @@ public class SpaceManager : MonoBehaviour
 	//Height and width relating to strings
 	float sH = 22;
 	float sW = 8;
+
+	//Variables for spawning Rings
+	float randAngle;
+	float randDist;
+	float xPos;
+	float zPos;
+
+	int sB;
+	int cB = 0;
+
+	int start = 0, 
+		finish, 
+		step = 100;
 	// Use this for initialization
 	void Start () 
 	{
 
 		bodies = new List<SpaceObject>();
+		Rings = new List<SpaceObject>();
 
 		spawnBody("Sun", SpaceObject.bodyType.Sun, Vector3.zero, PStats.SunMass, PStats.SunDiam, null, 1);
-
+//
 		spawnBody("Mercury", SpaceObject.bodyType.planet, new Vector3(PStats.MercuryDist, 0, 0), PStats.MercuryMass, PStats.MercuryDiam, bodies[0], 50);
-
+//
 		spawnBody("Venus", SpaceObject.bodyType.planet, new Vector3(PStats.VenusDist, 0, 0), PStats.VenusMass, PStats.VenusDiam, bodies[0], 50);
-
+//
 		spawnBody("Earth", SpaceObject.bodyType.planet, new Vector3(PStats.EarthDist, 0, 0), PStats.EarthMass, PStats.EarthDiam, bodies[0], 50);
-
+//
 		spawnBody("Moon", SpaceObject.bodyType.planet, new Vector3(PStats.MoonDist, 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1], 10);
-
-		//		spawnBody("Earth2", SpaceObject.bodyType.planet, new Vector3(PStats.EarthDist * 1.5f, 0, 0), PStats.EarthMass, PStats.EarthDiam, bodies[bodies.Count-3], 0.8f, 1.2f);
-
-		//		spawnBody("Moon", SpaceObject.bodyType.planet, new Vector3(PStats.MoonDist * , 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1], 0.95f, 1.1f);
-
+//
+//		//		spawnBody("Earth2", SpaceObject.bodyType.planet, new Vector3(PStats.EarthDist * 1.5f, 0, 0), PStats.EarthMass, PStats.EarthDiam, bodies[bodies.Count-3], 0.8f, 1.2f);
+//
+//		//		spawnBody("Moon", SpaceObject.bodyType.planet, new Vector3(PStats.MoonDist * , 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1], 0.95f, 1.1f);
+//
 		spawnBody("Mars", SpaceObject.bodyType.planet, new Vector3(PStats.MarsDist, 0, 0), PStats.MarsMass, PStats.MarsDiam, bodies[0], 50);
-
+//
 		spawnBody("Deimos", SpaceObject.bodyType.planet, new Vector3(PStats.DeimosDist, 0, 0), PStats.DeimosMass, PStats.DeimosDiam, bodies[bodies.Count-1], 1);
-
-		spawnBody("Asteroids", SpaceObject.bodyType.Ring, new Vector3(PStats.ABelt, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[0], 50);
+//
+		spawnRing("Asteroids", Vector3.zero, PStats.AstMass, PStats.EarthDiam, bodies[0], 50, 336, 200);
 
 		spawnBody("Jupiter", SpaceObject.bodyType.planet, new Vector3(PStats.JupiterDist, 0, 0), PStats.JupiterMass, PStats.JupiterDiam, bodies[0], 50);
 
+		spawnRing("Asteroids2", new Vector3(PStats.JupiterDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[bodies.Count-1], 50, 80, 100);
+
 		spawnBody("Saturn", SpaceObject.bodyType.planet, new Vector3(PStats.SaturnDist, 0, 0), PStats.SaturnMass, PStats.SaturnDiam, bodies[0], 50);
+
+		spawnRing("Asteroids3", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[bodies.Count-1], 50, 60, 100);
 
 		spawnBody("Uranus", SpaceObject.bodyType.planet, new Vector3(PStats.UranusDist, 0, 0), PStats.UranusMass, PStats.UranusDiam, bodies[0], 50);
 
+		spawnRing("Asteroids4", new Vector3(PStats.UranusDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[bodies.Count-1], 100, 40, 100);
+
 		spawnBody("Neptune", SpaceObject.bodyType.planet, new Vector3(PStats.NeptuneDist, 0, 0), PStats.NeptuneMass, PStats.NeptuneDiam, bodies[0], 50);
+
+		spawnRing("Asteroids5", new Vector3(PStats.NeptuneDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[bodies.Count-1], 50, 30, 100);
 
 		spawnBody("Pluto", SpaceObject.bodyType.planet, new Vector3(PStats.PlutoDist, 0, 0), PStats.PlutoMass, PStats.PlutoDiam, bodies[0], 50);
 
@@ -133,6 +156,15 @@ public class SpaceManager : MonoBehaviour
 //		}
 
 		Time.timeScale = timeScale;
+
+		if(bodies.Count < step)
+		{
+			finish = bodies.Count;
+		}
+		else
+		{
+			finish = step;
+		}
 	}
 
 	IEnumerator spawnBodies()
@@ -181,52 +213,33 @@ public class SpaceManager : MonoBehaviour
 
 	}
 
-	void spawnBody(string name, SpaceObject.bodyType bType, Vector3 pos, float mass, float diam, SpaceObject _OrbitTarget, float orbitPeriod)
+	void spawnBody(string _Name, SpaceObject.bodyType bType, Vector3 pos, float mass, float diam, SpaceObject _OrbitTarget, float orbitPeriod)
 	{
 		switch(bType)
 		{
 		case SpaceObject.bodyType.planet:
 			
-			bodies.Add(Instantiate(planetTemplate, new Vector3(PStats.inAUnits(pos.x), pos.y, pos.z), Quaternion.identity) 
+			bodies.Add(Instantiate(planetTemplate, new Vector3(pos.x, pos.y, pos.z), Quaternion.identity) 
 			           as SpaceObject);	
 			
 			break;
 			
 		case SpaceObject.bodyType.Sun:
 			
-			bodies.Add(Instantiate(sunTemplate, new Vector3(PStats.inAUnits(pos.x), pos.y, pos.z), Quaternion.identity) 
+			bodies.Add(Instantiate(sunTemplate, new Vector3(pos.x, pos.y, pos.z), Quaternion.identity) 
 			           as SpaceObject);	
 			
 			break;
 			
 		case SpaceObject.bodyType.Ring:
 
-			Debug.Log(PStats.inAUnits(pos.x));
-
+			Debug.Log (pos.x);
 
 			for(int i = 0; i < 100; i ++)
 			{
+				addAsteroid(pos, 80);
 
-				float randAngle = Random.value * 360;
-
-//				Debug.Log (randAngle);
-
-				float randDist = Random.Range(0,200) - 100;
-
-				float xPos = (PStats.inAUnits( pos.x) + randDist) * Mathf.Cos(randAngle);
-
-//				Debug.Log (xPos);
-
-				float zPos = (PStats.inAUnits( pos.x) + randDist) * Mathf.Sin(randAngle);
-
-//				Debug.Log (zPos);
-
-				bodies.Add(Instantiate(ringTemplate, new Vector3(xPos, 0, zPos), Quaternion.identity) 
-				           as SpaceObject);
-
-				mass += Random.Range(0, mass/4) - mass/8;
-
-				bodies[bodies.Count-1].init(name, bType, mass, diam, _OrbitTarget, orbitPeriod);
+				bodies[bodies.Count-1].init(_Name, bType, mass, diam, _OrbitTarget, orbitPeriod);
 			}
 			
 			break;
@@ -234,12 +247,53 @@ public class SpaceManager : MonoBehaviour
 
 		if(bType != SpaceObject.bodyType.Ring)
 		{
-			bodies[bodies.Count-1].init(name, bType, mass, diam, _OrbitTarget, orbitPeriod);
+			bodies[bodies.Count-1].init(_Name, bType, mass, diam, _OrbitTarget, orbitPeriod);
 		}
+	}
+
+	void spawnRing(string _Name, Vector3 orbit, float mass, float diam, SpaceObject _OrbitTarget, float orbitPeriod, 
+	               float distance, float amount)
+	{
+		for(int i = 0; i < amount; i ++)
+		{
+			addAsteroid(orbit, distance);
+			
+			bodies[bodies.Count-1].init(_Name, SpaceObject.bodyType.Ring, mass, diam, _OrbitTarget, orbitPeriod);
+		}
+	}
+
+	void addAsteroid(Vector3 pos, float _Distance)
+	{
+		randAngle = Random.value * 360;
+		
+		//				Debug.Log (randAngle);
+		
+		randDist = Random.Range(0,_Distance/2) - (_Distance)/4;
+
+
+		xPos = (_Distance + randDist) * Mathf.Cos(randAngle);
+		
+//						Debug.Log (xPos);
+		
+		zPos = (_Distance + randDist) * Mathf.Sin(randAngle);
+		
+//						Debug.Log (zPos);
+		
+		bodies.Add(Instantiate(ringTemplate, pos + new Vector3(xPos, 0, zPos), Quaternion.identity) 
+		           as SpaceObject);
+		
+		//				mass += Random.Range(0, mass/4) - mass/8;
 	}
 
 	void Update()
 	{
+		if(Input.GetKey(KeyCode.Y))
+		{
+//			addAsteroid(PStats.ABelt);
+
+//			bodies[bodies.Count-1].init(name, SpaceObject.bodyType.Ring, PStats.AstMass, PStats.EarthDiam, bodies[0], 50);
+		}
+
 		if(closestPlanetToPlayer != null)
 		{
 			if(bodies[0].GetComponent<PlayerInput>().closetPlanet != closestPlanetToPlayer)
@@ -468,46 +522,6 @@ public class SpaceManager : MonoBehaviour
 		optimisedFDTG();
 	}
 
-//	void unoptimisedFDTG()
-//	{
-//		foreach(GameObject firstBody in bodies)
-//		{
-//			if(firstBody == null)
-//			{
-//				Debug.LogError("I is null");
-//			}
-//			foreach(GameObject secondBody in bodies)
-//			{
-//				if(secondBody == null)
-//				{
-//					Debug.LogError("J is null");
-//				}
-//				
-//				if(firstBody.transform.position != secondBody.transform.position)
-//				{	
-//					//Find vector from first body to second body
-//					deltaPosition = secondBody.transform.position - firstBody.transform.position;
-//					//Debug.Log ("deltaPosition: " + deltaPosition.ToString());
-//					
-//					direction = Vector3.Normalize(deltaPosition);
-//					//Debug.Log("direction: " + direction.ToString());
-//
-//					edgeOfFirstBody = direction * (firstBody.transform.localScale.x/2);
-//					Debug.DrawRay(firstBody.transform.position + edgeOfFirstBody, direction, Color.red);
-//					
-//					relDistance = deltaPosition.sqrMagnitude;
-//					//Debug.Log ("Square Radius: " + relDistance);
-//					
-//					forceDueToGrav = (firstBody.rigidbody.mass * secondBody.rigidbody.mass)/relDistance;
-//					//Debug.Log ("Force Due To Gravity: " + forcedueToGrav * gForceAmp);
-//					
-//					firstBody.rigidbody.AddForce(direction * forceDueToGrav * gForceAmp);
-//										
-//				}
-//			}
-//		}
-//	}
-
 	void optimisedFDTG()
 	{
 		if(bodies == null)
@@ -518,6 +532,7 @@ public class SpaceManager : MonoBehaviour
 		COMPos = Vector3.zero;
 
 		totalMass = 0;
+
 
 		for(int fB = 0; fB < bodies.Count ; fB++)
 		{
@@ -534,15 +549,16 @@ public class SpaceManager : MonoBehaviour
 				Debug.LogError("bodies[fB] is null");
 			}		
 
-			for(int sB = 0; sB < bodies.Count ; sB++)
+			for(sB = start; sB < finish; sB++)
 			{
 				if(bodies[sB] == null)
 				{
 					Debug.LogError("bodies[sB] is null");
 				}
-				
+
 				if(fB < sB && (bodies[fB].canOrbit(bodies[sB]) || bodies[sB].canOrbit(bodies[fB])))
 				{	
+//					Debug.Log ("fB + sB: " + fB + sB);
 					//Find vector from first body to second body
 					deltaPosition = bodies[sB].transform.position - bodies[fB].transform.position;
 					//Debug.Log ("deltaPosition: " + deltaPosition.ToString());
@@ -599,6 +615,33 @@ public class SpaceManager : MonoBehaviour
 							bodies[sB].rigidbody.AddForce(direction * -1 * forceDueToGrav * Time.deltaTime);
 						}
 					}											
+				}
+			}
+
+			start = finish;
+
+			if(finish == bodies.Count)
+			{
+				start = 0;
+
+				if(bodies.Count < step)
+				{
+					finish = bodies.Count;
+				}
+				else
+				{
+					finish = step;
+				}
+			}
+			else
+			{
+				if(finish + step < bodies.Count)
+				{
+					finish += step;
+				}
+				else
+				{
+					finish = bodies.Count;
 				}
 			}
 		}
