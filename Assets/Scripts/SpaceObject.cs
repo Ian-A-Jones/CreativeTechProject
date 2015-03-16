@@ -9,7 +9,7 @@ public class SpaceObject : MonoBehaviour
 	static float pScale = 5, rScale = 8, sScale = 1;
 	static float meshScale = 10;
 	static float oTScale = 25;
-	public static float speedAmp =  20, distanceAmp = 1000;
+	public static float speedAmp =  10, distanceAmp = 1000;
 	//IF a SpaceObject has an orbit target then it will only be affected by it's Gravity
 	public SpaceObject orbitTarget = null;
 	public bool orbitOn = true;
@@ -36,6 +36,7 @@ public class SpaceObject : MonoBehaviour
 		planet,
 		Sun,
 		Ring,
+		BlackHole,
 	};
 
 	bodyType bType;
@@ -71,12 +72,20 @@ public class SpaceObject : MonoBehaviour
 //			Debug.Log ("Avg V : " + avgOrbitVelocity);
 			
 //			calcTrail(orbitDistance, avgOrbitVelocity);
+
+			if(bType == bodyType.Ring)
+			{
+				transform.parent = _OrbitTarget.transform;
+			}
 		}
 	}
 
 	public void Start()
 	{
-		StartCoroutine(maintainOrbit());
+//		if(bType != bodyType.Ring)
+//		{
+			StartCoroutine(maintainOrbit());
+//		}
 	}
 
 	void calcTrail()
@@ -99,7 +108,7 @@ public class SpaceObject : MonoBehaviour
 
 	public bool canOrbit(SpaceObject otherSObj)
 	{
-		if(orbitOn && orbitTarget == null || orbitTarget == otherSObj )
+		if(orbitOn && orbitTarget == null || orbitTarget == otherSObj || otherSObj.bType == bodyType.BlackHole)
 			//|| Vector3.Distance(this.transform.position, otherSObj.transform.position) < 25
 		{
 //			if(this.name == "Moon")
@@ -138,6 +147,13 @@ public class SpaceObject : MonoBehaviour
 
 			transform.localScale = threeAsOne(diameter * rScale);
 			GetComponentInChildren<MeshRenderer>().transform.localScale = threeAsOne(diameter * meshScale * rScale);
+
+			break;
+
+		case bodyType.BlackHole:
+			
+			transform.localScale = threeAsOne(diameter * sScale);
+			GetComponentInChildren<MeshRenderer>().transform.localScale = threeAsOne(diameter * meshScale * sScale);
 
 			break;
 		}
@@ -260,6 +276,11 @@ public class SpaceObject : MonoBehaviour
 
 				case bodyType.Ring:
 					yield return new WaitForSeconds(0.5f);
+//					yield return null;
+					break;
+
+				case bodyType.BlackHole:
+					yield return null;
 					break;
 			}
 		}
@@ -321,9 +342,29 @@ public class SpaceObject : MonoBehaviour
 //		Debug.DrawRay(transform.position, -deltaPosition, Color.red);
 
 		diff = orbitDistance - distance;
+		switch(bType)
+		{
+			case bodyType.Ring:
+				
+				rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp/4  * Time.deltaTime);
+				break;
 
-		rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp  * Time.deltaTime);
-//
+			case bodyType.planet:
+				
+				rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp  * Time.deltaTime);
+				break;
+
+			case bodyType.Sun:
+			
+				rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp  * Time.deltaTime);
+				break;
+
+			case bodyType.BlackHole:
+				
+				rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp  * Time.deltaTime);
+				break;
+		}
+		//
 //		if(distance < orbitDistance * minOrbitP)
 //		{
 //			rigidbody.AddForce(deltaPosition.normalized * orbitDistance/distance * distanceAmp * Time.deltaTime);
