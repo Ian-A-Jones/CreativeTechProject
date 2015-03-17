@@ -105,6 +105,7 @@ public class SpaceManager : MonoBehaviour
 	int start = 0, 
 		finish, 
 		step = 50;
+	
 	// Use this for initialization
 	void Start () 
 	{
@@ -113,41 +114,41 @@ public class SpaceManager : MonoBehaviour
 		Rings = new List<SpaceObject>();
 
 		spawnBody("Sun", SpaceObject.bodyType.Sun, Vector3.zero, PStats.SunMass, PStats.SunDiam, null, 1);
-//
+
 //		spawnBody("Mercury", SpaceObject.bodyType.planet, new Vector3(PStats.MercuryDist, 0, 0), PStats.MercuryMass, PStats.MercuryDiam, bodies[0], 50);
-////
-//		spawnBody("Venus", SpaceObject.bodyType.planet, new Vector3(PStats.VenusDist, 0, 0), PStats.VenusMass, PStats.VenusDiam, bodies[0], 50);
-////
-//		spawnBody("Earth", SpaceObject.bodyType.planet, new Vector3(PStats.EarthDist, 0, 0), PStats.EarthMass, PStats.EarthDiam, bodies[0], 50);
-////
-//		spawnBody("Moon", SpaceObject.bodyType.planet, new Vector3(PStats.MoonDist, 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1], 10);
-////
-////		//		spawnBody("Earth2", SpaceObject.bodyType.planet, new Vector3(PStats.EarthDist * 1.5f, 0, 0), PStats.EarthMass, PStats.EarthDiam, bodies[bodies.Count-3], 0.8f, 1.2f);
-////
-////		//		spawnBody("Moon", SpaceObject.bodyType.planet, new Vector3(PStats.MoonDist * , 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1], 0.95f, 1.1f);
-////
-//		spawnBody("Mars", SpaceObject.bodyType.planet, new Vector3(PStats.MarsDist, 0, 0), PStats.MarsMass, PStats.MarsDiam, bodies[0], 50);
-////
-//		spawnBody("Deimos", SpaceObject.bodyType.planet, new Vector3(PStats.DeimosDist, 0, 0), PStats.DeimosMass, PStats.DeimosDiam, bodies[bodies.Count-1], 10);
 //
-//		spawnRing("Asteroids", Vector3.zero, PStats.AstMass, PStats.EarthDiam, bodies[0], 50, 336, 200);
+//		spawnBody("Venus", SpaceObject.bodyType.planet, new Vector3(PStats.VenusDist, 0, 0), PStats.VenusMass, PStats.VenusDiam, bodies[0], 50);
+//
+		spawnBody("Earth", SpaceObject.bodyType.planet, new Vector3(PStats.EarthDist, 0, 0), PStats.EarthMass, PStats.EarthDiam, bodies[0], 50);
+//
+		spawnBody("Moon", SpaceObject.bodyType.planet, new Vector3(PStats.MoonDist, 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1], 10);
+//
+//		//		spawnBody("Earth2", SpaceObject.bodyType.planet, new Vector3(PStats.EarthDist * 1.5f, 0, 0), PStats.EarthMass, PStats.EarthDiam, bodies[bodies.Count-3], 0.8f, 1.2f);
+//
+//		//		spawnBody("Moon", SpaceObject.bodyType.planet, new Vector3(PStats.MoonDist * , 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1], 0.95f, 1.1f);
+//
+//		spawnBody("Mars", SpaceObject.bodyType.planet, new Vector3(PStats.MarsDist, 0, 0), PStats.MarsMass, PStats.MarsDiam, bodies[0], 50);
+//
+//		spawnBody("Deimos", SpaceObject.bodyType.planet, new Vector3(PStats.DeimosDist, 0, 0), PStats.DeimosMass, PStats.DeimosDiam, bodies[bodies.Count-1], 10);
+
+//		spawnRing("Asteroids", Vector3.zero, PStats.AstMass, PStats.EarthDiam, bodies[0], 50, 336, 50);
 
 //		spawnBody("Jupiter", SpaceObject.bodyType.planet, new Vector3(PStats.JupiterDist, 0, 0), PStats.JupiterMass, PStats.JupiterDiam, bodies[0], 50);
-//
-////		spawnRing("Asteroids2", new Vector3(PStats.JupiterDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[bodies.Count-1], 50, 80, 100);
-//
+
+//		spawnRing("Asteroids2", new Vector3(PStats.JupiterDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[bodies.Count-1], 50, 80, 50);
+
 //		spawnBody("Saturn", SpaceObject.bodyType.planet, new Vector3(PStats.SaturnDist, 0, 0), PStats.SaturnMass, PStats.SaturnDiam, bodies[0], 50);
-//
-////		spawnRing("Asteroids3", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[bodies.Count-1], 50, 60, 100);
-//
+
+//		spawnRing("Asteroids3", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[bodies.Count-1], 50, 60, 50);
+
 //		spawnBody("Uranus", SpaceObject.bodyType.planet, new Vector3(PStats.UranusDist, 0, 0), PStats.UranusMass, PStats.UranusDiam, bodies[0], 50);
-//
-////		spawnRing("Asteroids4", new Vector3(PStats.UranusDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[bodies.Count-1], 100, 40, 100);
-//
+
+//		spawnRing("Asteroids4", new Vector3(PStats.UranusDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[bodies.Count-1], 100, 40, 50);
+
 //		spawnBody("Neptune", SpaceObject.bodyType.planet, new Vector3(PStats.NeptuneDist, 0, 0), PStats.NeptuneMass, PStats.NeptuneDiam, bodies[0], 50);
-//
-////		spawnRing("Asteroids5", new Vector3(PStats.NeptuneDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[bodies.Count-1], 50, 30, 100);
-//
+
+//		spawnRing("Asteroids5", new Vector3(PStats.NeptuneDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[bodies.Count-1], 50, 30, 50);
+
 //		spawnBody("Pluto", SpaceObject.bodyType.planet, new Vector3(PStats.PlutoDist, 0, 0), PStats.PlutoMass, PStats.PlutoDiam, bodies[0], 50);
 
 
@@ -258,6 +259,16 @@ public class SpaceManager : MonoBehaviour
 		}
 	}
 
+	//Spawn body from camera at speed
+	void spawnBody(float mass, float diam, float velocity)
+	{
+		bodies.Add(Instantiate(planetTemplate, Camera.main.transform.position, Quaternion.identity) 
+		           as SpaceObject);	
+
+		bodies[bodies.Count-1].init("Thing", SpaceObject.bodyType.planet, mass, diam, velocity);
+
+	}
+
 	void spawnRing(string _Name, Vector3 orbit, float mass, float diam, SpaceObject _OrbitTarget, float orbitPeriod, 
 	               float distance, float amount)
 	{
@@ -298,10 +309,25 @@ public class SpaceManager : MonoBehaviour
 		{
 			Debug.Log ("Spawning Black Hole");
 
-			spawnBody("BlackHole", SpaceObject.bodyType.BlackHole, Vector3.up*50, 900000, PStats.SunDiam, null, 0);
+			spawnBody("BlackHole", SpaceObject.bodyType.BlackHole, Vector3.up*100, 90000000, PStats.SunDiam, null, 0);
+
 //			addAsteroid(PStats.ABelt);
 
 //			bodies[bodies.Count-1].init(name, SpaceObject.bodyType.Ring, PStats.AstMass, PStats.EarthDiam, bodies[0], 50);
+		}
+
+		if(Input.GetKeyDown(KeyCode.F))
+		{
+			Debug.Log ("Spawning");
+
+//			spawnBody(1000, PStats.NeptuneDiam, 9000000);
+			spawnBody(20, PStats.NeptuneDiam, 10000);
+
+		}
+
+		if(Input.GetKeyDown(KeyCode.O))
+		{
+			SpaceObject.bMaintainOrbit = !SpaceObject.bMaintainOrbit;
 		}
 
 		if(closestPlanetToPlayer != null)
@@ -546,9 +572,16 @@ public class SpaceManager : MonoBehaviour
 
 		for(int fB = 0; fB < bodies.Count; fB++)
 		{
+			if(fB >= bodies.Count)
+			{
+				fB = bodies.Count-1;
+			}
+
 			if(bodies[fB] == null)
 			{
-				Debug.LogError("bodies[fB] is null");
+				bodies.Remove(bodies[fB]);
+				Debug.LogWarning("bodies[fB] is null");
+				break;
 			}		
 
 			//			fB = Mathf.Clamp(fB, 0, bodies.Count);
@@ -565,15 +598,24 @@ public class SpaceManager : MonoBehaviour
 			{
 //				sB = Mathf.Clamp(sB, 0, bodies.Count-1);
 //				Debug.Log (sB);
+
+				if(sB >= bodies.Count)
+				{
+					sB = bodies.Count-1;
+				}
+
 				if(bodies[sB] == null)
 				{
-					Debug.LogError("bodies[sB] is null");
+					bodies.Remove(bodies[sB]);
+					Debug.LogWarning("bodies[sB] is null");
+					break;
 				}
 
 				if(fB < sB && (bodies[fB].canOrbit(bodies[sB]) || bodies[sB].canOrbit(bodies[fB])))
 				{	
 //					Debug.Log ("fB + sB: " + fB + sB);
 					//Find vector from first body to second body
+
 					deltaPosition = bodies[sB].transform.position - bodies[fB].transform.position;
 					//Debug.Log ("deltaPosition: " + deltaPosition.ToString());
 
@@ -628,13 +670,18 @@ public class SpaceManager : MonoBehaviour
 							}
 							bodies[sB].rigidbody.AddForce(direction * -1 * forceDueToGrav * Time.deltaTime);
 						}
-					}											
+					}
+					else
+					{
+						Debug.Log("Error");
+					}
+
 				}
 			}
 
 			start = finish;
 
-			if(finish == bodies.Count)
+			if(finish >= bodies.Count) //If at the end of list
 			{
 				start = 0;
 
@@ -660,12 +707,11 @@ public class SpaceManager : MonoBehaviour
 			}
 		}
 
-		if(bodies.Count > 0)
+		if(bodies.Count > 0 && totalMass != 0)
 		{
 			COMPos /= totalMass;
 
 			CentreOfMassRef.transform.localScale = new Vector3(totalMass, totalMass, totalMass)/100;
-
 			CentreOfMassRef.transform.position = COMPos;
 		}
 		else
@@ -706,11 +752,12 @@ public class SpaceManager : MonoBehaviour
 //		SpaceObject body = bodies.Find(f => f.GetInstanceID() == iD);
 		foreach(SpaceObject body in bodies.ToArray())
 		{
-			Debug.Log (iD + " " + body.transform.GetInstanceID());
+//			Debug.Log (iD + " " + body.transform.GetInstanceID());
 			if(body.transform.GetInstanceID() == iD)
 			{
-				Debug.Log ("Bodies match");
+//				Debug.Log ("Bodies match");
 				bodies.Remove(body);
+
 				Destroy(body.gameObject);
 				finish--;
 

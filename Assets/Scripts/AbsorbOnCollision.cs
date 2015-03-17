@@ -33,7 +33,7 @@ public class AbsorbOnCollision : MonoBehaviour
 				Debug.Log ("This larger than that");
 				this.rigidbody.mass += otherBMass;
 				this.transform.localScale += new Vector3(otherBMass, otherBMass, otherBMass);
-				spaceManagerScript.removeBodyAt(collision.transform.position);
+//				spaceManagerScript.removeBodyAt(collision.transform.position);
 			}
 			else
 			{
@@ -41,7 +41,7 @@ public class AbsorbOnCollision : MonoBehaviour
 				collision.rigidbody.mass += this.rigidbody.mass;
 				collision.transform.localScale += new Vector3(this.rigidbody.mass, this.rigidbody.mass, this.rigidbody.mass);
 				
-				spaceManagerScript.removeBodyAt(transform.position);
+//				spaceManagerScript.removeBodyAt(transform.position);
 			}
 		}
 	}

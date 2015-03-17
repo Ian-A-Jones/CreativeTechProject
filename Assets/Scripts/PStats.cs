@@ -40,8 +40,8 @@ public static class PStats
 	public static float VenusMass 	= 3;
 	public static float EarthMass 	= 5f;
 	public static float MarsMass	= 4;
-	public static float JupiterMass	= 50;
-	public static float SaturnMass	= 20;
+	public static float JupiterMass	= 10;
+	public static float SaturnMass	= 8;
 	public static float UranusMass 	= 6;
 	public static float NeptuneMass	= 7;
 	public static float PlutoMass	= 1f;
@@ -67,8 +67,8 @@ public static class PStats
 	public static float PlutoDist	= 3974.532f;
 
 	//Moons
-	public static float MoonDist	= 100.27f;
-	public static float DeimosDist 	= 152.382f;
+	public static float MoonDist	= 103f;
+	public static float DeimosDist 	= 153.382f;
 
 	//Rings
 	public static float ABelt		= 336.32f;

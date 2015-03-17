@@ -10,8 +10,9 @@ public class CameraController : MonoBehaviour
 	public int zoomSpeed;
 
 	float x, y;
-	float zoom = 100;
+	public float zoom = 0;
 
+	float moveForce = 1;
 	Vector3 targetVector;
 
 	bool choosingSpawn;
@@ -72,6 +73,7 @@ public class CameraController : MonoBehaviour
 					if(target != GameObject.Find(hit.transform.name))
 					{
 						target = GameObject.Find(hit.transform.name);
+						zoom = target.transform.localScale.x*3;
 					}
 				}
 			}
@@ -92,36 +94,52 @@ public class CameraController : MonoBehaviour
 			transform.rotation = rotation;
 		}
 
-//		if(Input.GetMouseButton(2))
-//		{
-//			x -= Input.GetAxis("Mouse X") ;
-//			y -= Input.GetAxis("Mouse Y");
-//
-//			transform.position = new Vector3(x,y,0);
-//		}
-//		else
-//		{
-//			if(Input.GetKey(KeyCode.W))
-//			{
-//				rigidbody.AddForce(Vector3.forward * 2);
-//			}
-//
-//			if(Input.GetKey(KeyCode.S))
-//			{
-//				rigidbody.AddForce(Vector3.back * 2);
-//			}
-//
-//			if(Input.GetKey(KeyCode.A))
-//			{
-//				rigidbody.AddForce(Vector3.left * 2);
-//			}
-//
-//			if(Input.GetKey(KeyCode.D))
-//			{
-//				rigidbody.AddForce(Vector3.right * 2);
-//			}
-//
-//		}
+		if(Input.GetMouseButton(2))
+		{
+			x -= Input.GetAxis("Mouse X") ;
+			y -= Input.GetAxis("Mouse Y");
+
+			transform.position = new Vector3(x,y,0);
+		}
+
+		if(Input.GetKey(KeyCode.W))
+		{
+			transform.position +=(transform.forward * moveForce);
+		}
+
+		if(Input.GetKey(KeyCode.S))
+		{
+			transform.position +=(transform.forward * -moveForce);
+		}
+
+		if(Input.GetKey(KeyCode.A))
+		{
+			transform.position +=(transform.right * -moveForce);
+		}
+
+		if(Input.GetKey(KeyCode.D))
+		{
+			transform.position +=(transform.right * moveForce);
+		}
+
+		if(Input.GetKey(KeyCode.Q))
+		{
+			transform.position +=(transform.up * moveForce);
+		}
+
+		if(Input.GetKey(KeyCode.E))
+		{
+			transform.position +=(transform.up * -moveForce);
+		}
+
+		if(Input.GetAxis("Mouse ScrollWheel") != 0)
+		{
+			Debug.Log ("Zooming");
+			Debug.Log (zoom);
+			zoom -= Input.GetAxis("Mouse ScrollWheel") * zoomSpeed;
+			Debug.Log (zoom);
+//			transform.position +=(transform.forward * zoom);
+		}
 
 		if(Input.GetKeyDown(KeyCode.Space))
 		{
@@ -154,20 +172,13 @@ public class CameraController : MonoBehaviour
 			
 		}
 
-		if(Input.GetAxis("Mouse ScrollWheel") != 0)
-		{
-			zoom -= Input.GetAxis("Mouse ScrollWheel") * zoomSpeed * Time.deltaTime;
-
-			transform.position = new Vector3(transform.position.x,transform.position.y, zoom);
-		}
-
-		if(target != null)
+		if(target)
 		{
 			transform.position = transform.rotation * new Vector3(0.0f, 0.0f, -zoom) + target.transform.position;
 		}
 		else
 		{
-			transform.position = new Vector3(0,0, - zoom);
+			transform.position = new Vector3(transform.position.x,transform.position.y, transform.position.z);
 		}
 
 	}

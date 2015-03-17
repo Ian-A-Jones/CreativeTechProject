@@ -6,10 +6,10 @@ public class SpaceObject : MonoBehaviour
 	//Member Variables
 	//Maximum masss a body can Have
 	public static int maxMass = 50;
-	static float pScale = 5, rScale = 8, sScale = 1;
+	static float pScale = 50, rScale = 8, sScale = 50;
 	static float meshScale = 10;
-	static float oTScale = 25;
-	public static float speedAmp =  10, distanceAmp = 1000;
+	static float oTScale = 1;
+	public float speedAmp =  1, distanceAmp = 1;
 	//IF a SpaceObject has an orbit target then it will only be affected by it's Gravity
 	public SpaceObject orbitTarget = null;
 	public bool orbitOn = true;
@@ -30,6 +30,8 @@ public class SpaceObject : MonoBehaviour
 	public Vector3 directionToOrbitTarget;
 
 	public float diff;
+
+	public static bool bMaintainOrbit = true;
 
 	public enum bodyType
 	{
@@ -73,11 +75,29 @@ public class SpaceObject : MonoBehaviour
 			
 //			calcTrail(orbitDistance, avgOrbitVelocity);
 
-			if(bType == bodyType.Ring)
+//			if(bType == bodyType.Ring)
+//			{
+//				transform.parent = _OrbitTarget.transform;
+//			}
+
+			if(_OrbitTarget.orbitTarget)
 			{
-				transform.parent = _OrbitTarget.transform;
+				distanceAmp = 1000;
 			}
 		}
+	}
+
+	public void init(string _Name, bodyType _BType, float mass, float diam, float velocity)
+	{
+		name = _Name;
+
+		bType = _BType;
+
+		setMassAndSize(mass, PStats.inAUnits(diam));
+
+		rigidbody.AddForce(Camera.main.transform.forward * velocity);
+
+		GetComponentInChildren<TrailRenderer>().gameObject.SetActive(false);
 	}
 
 	public void Start()
@@ -93,8 +113,8 @@ public class SpaceObject : MonoBehaviour
 		if(GetComponentInChildren<TrailRenderer>().enabled)
 		{
 			GetComponentInChildren<TrailRenderer>().time = 2*Mathf.PI*distance/speed; //Magic number translated speed of object into a estimated time for trail to appear
-			GetComponentInChildren<TrailRenderer>().startWidth = GetComponentInChildren<MeshRenderer>().transform.localScale.x*transform.localScale.x;
-			GetComponentInChildren<TrailRenderer>().endWidth = GetComponentInChildren<MeshRenderer>().transform.localScale.x*transform.localScale.x;
+			GetComponentInChildren<TrailRenderer>().startWidth = transform.localScale.x;
+			GetComponentInChildren<TrailRenderer>().endWidth = transform.localScale.x*transform.localScale.x/10; //Half size to make end obvious
 		}
 	}
 
@@ -134,27 +154,19 @@ public class SpaceObject : MonoBehaviour
 		case bodyType.planet:
 
 			transform.localScale = threeAsOne(diameter * pScale);
-			GetComponentInChildren<MeshRenderer>().transform.localScale = threeAsOne(diameter * meshScale * pScale);
-
 			break;
 		case bodyType.Sun:
 
 			transform.localScale = threeAsOne(diameter * sScale);
-			GetComponentInChildren<MeshRenderer>().transform.localScale = threeAsOne(diameter * meshScale * sScale);
-
 			break;
 		case bodyType.Ring:
 
 			transform.localScale = threeAsOne(diameter * rScale);
-			GetComponentInChildren<MeshRenderer>().transform.localScale = threeAsOne(diameter * meshScale * rScale);
-
 			break;
 
 		case bodyType.BlackHole:
 			
 			transform.localScale = threeAsOne(diameter * sScale);
-			GetComponentInChildren<MeshRenderer>().transform.localScale = threeAsOne(diameter * meshScale * sScale);
-
 			break;
 		}
 	}
@@ -256,7 +268,7 @@ public class SpaceObject : MonoBehaviour
 	{
 		while(this.enabled)
 		{
-			if(orbitTarget != null)
+			if(orbitTarget && bMaintainOrbit)
 			{
 				clampVelocity();
 				clampDistance();
@@ -305,7 +317,7 @@ public class SpaceObject : MonoBehaviour
 //		Debug.DrawRay(transform.position, new Vector3(directionToOrbitTarget.z * -1, rigidbody.velocity.normalized.y, directionToOrbitTarget.x), Color.green);
 		rigidbody.AddForce(new Vector3(directionToOrbitTarget.z * -1, 0, directionToOrbitTarget.x) * (avgOrbitVelocity - speed) * speedAmp * Time.deltaTime);
 
-		rigidbody.velocity = Vector3.ClampMagnitude(rigidbody.velocity, avgOrbitVelocity * 7f);
+//		rigidbody.velocity = Vector3.ClampMagnitude(rigidbody.velocity, avgOrbitVelocity * 10f);
 //		if (speed < (avgOrbitVelocity * minOrbitP) && speed > 0)
 //		{
 //			acclSpeed = speed + (avgOrbitVelocity);
@@ -329,6 +341,7 @@ public class SpaceObject : MonoBehaviour
 //		}
 	}
 
+	//TODO:Break clamp if goes too far
 	public void clampDistance()
 	{
 		distance = Vector3.Distance(this.transform.position, orbitTarget.transform.position);
