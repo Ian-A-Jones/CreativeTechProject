@@ -67,8 +67,8 @@ public static class PStats
 	public static float PlutoDist	= 3974.532f;
 
 	//Moons
-	public static float MoonDist	= 103f;
-	public static float DeimosDist 	= 153.382f;
+	public static float MoonDist	= 106f;
+	public static float DeimosDist 	= 157f;
 
 	//Rings
 	public static float ABelt		= 336.32f;

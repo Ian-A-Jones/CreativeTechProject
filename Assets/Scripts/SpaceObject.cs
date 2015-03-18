@@ -6,10 +6,10 @@ public class SpaceObject : MonoBehaviour
 	//Member Variables
 	//Maximum masss a body can Have
 	public static int maxMass = 50;
-	static float pScale = 50, rScale = 8, sScale = 50;
+	static float pScale = 50, rScale = 200, sScale = 50;
 	static float meshScale = 10;
 	static float oTScale = 1;
-	public float speedAmp =  1, distanceAmp = 1;
+	float speedAmp =  25, distanceAmp = 200;
 	//IF a SpaceObject has an orbit target then it will only be affected by it's Gravity
 	public SpaceObject orbitTarget = null;
 	public bool orbitOn = true;
@@ -317,7 +317,7 @@ public class SpaceObject : MonoBehaviour
 //		Debug.DrawRay(transform.position, new Vector3(directionToOrbitTarget.z * -1, rigidbody.velocity.normalized.y, directionToOrbitTarget.x), Color.green);
 		rigidbody.AddForce(new Vector3(directionToOrbitTarget.z * -1, 0, directionToOrbitTarget.x) * (avgOrbitVelocity - speed) * speedAmp * Time.deltaTime);
 
-//		rigidbody.velocity = Vector3.ClampMagnitude(rigidbody.velocity, avgOrbitVelocity * 10f);
+		rigidbody.velocity = Vector3.ClampMagnitude(rigidbody.velocity, avgOrbitVelocity * 7f);
 //		if (speed < (avgOrbitVelocity * minOrbitP) && speed > 0)
 //		{
 //			acclSpeed = speed + (avgOrbitVelocity);
@@ -330,17 +330,8 @@ public class SpaceObject : MonoBehaviour
 //		}
 //
 //		if (speed > (avgOrbitVelocity * maxOrbitP) && speed > 0)
-//			
-//		{
-//			brakeSpeed = speed - (avgOrbitVelocity);  // calculate the speed decrease
-//			
-//			normalisedVelocity = rigidbody.velocity.normalized;
-//			brakeVelocity = normalisedVelocity * brakeSpeed;  // make the brake Vector3 value
-//			
-//			rigidbody.AddForce(-brakeVelocity * speed/avgOrbitVelocity * speedAmp * Time.deltaTime);  // apply opposing brake force
-//		}
 	}
-
+//			
 	//TODO:Break clamp if goes too far
 	public void clampDistance()
 	{
