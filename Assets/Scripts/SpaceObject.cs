@@ -9,7 +9,7 @@ public class SpaceObject : MonoBehaviour
 	static float pScale = 50, rScale = 200, sScale = 50;
 	static float meshScale = 10;
 	static float oTScale = 1;
-	float speedAmp =  25, distanceAmp = 200;
+	float speedAmp =  25, distanceAmp = 100;
 	//IF a SpaceObject has an orbit target then it will only be affected by it's Gravity
 	public SpaceObject orbitTarget = null;
 	public bool orbitOn = true;
