@@ -75,15 +75,17 @@ public class SpaceObject : MonoBehaviour
 			
 //			calcTrail(orbitDistance, avgOrbitVelocity);
 
-//			if(bType == bodyType.Ring)
-//			{
-//				transform.parent = _OrbitTarget.transform;
-//			}
+			if(bType == bodyType.Ring)
+			{
+				speedAmp = 1;
+				distanceAmp = 100;
+			}
 
 			if(_OrbitTarget.orbitTarget)
 			{
 				distanceAmp = 1000;
 			}
+
 		}
 	}
 
