@@ -9,7 +9,7 @@ public class SpaceObject : MonoBehaviour
 	static float pScale = 50, rScale = 200, sScale = 50;
 	static float meshScale = 10;
 	static float oTScale = 1;
-	float speedAmp =  25, distanceAmp = 100;
+	float speedAmp =  25, distanceAmp = 75;
 	//IF a SpaceObject has an orbit target then it will only be affected by it's Gravity
 	public SpaceObject orbitTarget = null;
 	public bool orbitOn = true;
@@ -316,7 +316,7 @@ public class SpaceObject : MonoBehaviour
 
 //		Debug.DrawRay(this.transform.position, deltaPosition.normalized, Color.red);
 
-//		Debug.DrawRay(transform.position, new Vector3(directionToOrbitTarget.z * -1, rigidbody.velocity.normalized.y, directionToOrbitTarget.x), Color.green);
+		Debug.DrawRay(transform.position, new Vector3(directionToOrbitTarget.z * -1, rigidbody.velocity.normalized.y, directionToOrbitTarget.x), Color.green);
 		rigidbody.AddForce(new Vector3(directionToOrbitTarget.z * -1, 0, directionToOrbitTarget.x) * (avgOrbitVelocity - speed) * speedAmp * Time.deltaTime);
 
 		rigidbody.velocity = Vector3.ClampMagnitude(rigidbody.velocity, avgOrbitVelocity * 7f);
@@ -358,6 +358,13 @@ public class SpaceObject : MonoBehaviour
 			case bodyType.planet:
 				
 				rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp  * Time.deltaTime);
+					
+//				Debug.Log (distance);
+				if((distance > 1.3f * orbitDistance || distance < 0.7f * orbitDistance) && orbitTarget)
+				{
+					Debug.Log ("Breaking Orbit of: " + name);
+					orbitTarget = null;
+				}
 				break;
 
 			case bodyType.Sun:
@@ -370,6 +377,8 @@ public class SpaceObject : MonoBehaviour
 				rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp  * Time.deltaTime);
 				break;
 		}
+
+
 		//
 //		if(distance < orbitDistance * minOrbitP)
 //		{

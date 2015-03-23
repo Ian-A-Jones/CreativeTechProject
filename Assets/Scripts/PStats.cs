@@ -56,7 +56,7 @@ public static class PStats
 
 	#region Distance from Sun(Km)
 
-	public static float MercuryDist = 38.7f;
+	public static float MercuryDist = 48.7f;
 	public static float VenusDist 	= 72.8f;
 	public static float EarthDist 	= 100;
 	public static float MarsDist	= 152.36f;
@@ -67,8 +67,8 @@ public static class PStats
 	public static float PlutoDist	= 3974.532f;
 
 	//Moons
-	public static float MoonDist	= 106f;
-	public static float DeimosDist 	= 157f;
+	public static float MoonDist	= 115f;
+	public static float DeimosDist 	= 163f;
 
 	//Rings
 	public static float ABelt		= 336.32f;

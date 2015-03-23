@@ -317,7 +317,7 @@ public class SpaceManager : MonoBehaviour
 			Debug.Log ("Spawning");
 
 //			spawnBody(1000, PStats.NeptuneDiam, 9000000);
-			spawnBody(10, PStats.NeptuneDiam, 10000);
+			spawnBody(100, PStats.NeptuneDiam, 300000);
 
 		}
 
