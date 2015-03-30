@@ -6,7 +6,7 @@ public class SpaceObject : MonoBehaviour
 	//Member Variables
 	//Maximum masss a body can Have
 	public static int maxMass = 50;
-	static float pScale = 50, rScale = 200, sScale = 50;
+	static float pScale = 1, rScale = 1, sScale = 1;
 	static float meshScale = 10;
 	static float oTScale = 1;
 	float speedAmp =  25, distanceAmp = 75;
@@ -49,7 +49,7 @@ public class SpaceObject : MonoBehaviour
 
 		bType = _BType;
 
-		this.setMassAndSize(mass, PStats.inAUnits(diam));
+		this.setMassAndSize(mass, diam);
 		
 		//Orbit Target logic
 		if(_OrbitTarget != null)
@@ -216,7 +216,7 @@ public class SpaceObject : MonoBehaviour
 		
 		float OrbitPeriod = Mathf.Pow(semiMajorAxis,3);
 		
-		OrbitPeriod /= (otherBody.rigidbody.mass * SpaceManager.gForceAmp);	
+		OrbitPeriod /= (otherBody.rigidbody.mass);	
 		OrbitPeriod = Mathf.Sqrt(OrbitPeriod);
 		
 		OrbitPeriod *= 2*Mathf.PI;

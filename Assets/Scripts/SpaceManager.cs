@@ -11,7 +11,7 @@ public class SpaceManager : MonoBehaviour
 	public float posRange;
 
 	//Gravity Scalar
-	public static float gForceAmp = 100;
+	public static float gForceAmp = 200;
 
 	//Prefab used for spawning planets
 	public SpaceObject planetTemplate;
@@ -57,17 +57,25 @@ public class SpaceManager : MonoBehaviour
 	string spawnPosZ = "0";
 
 	string spawnMass = "1";
-
-	string spawnVelocityX = "0";
-	string spawnVelocityY = "0";
-	string spawnVelocityZ = "0";
+	string spawnDiameter = "1";
+	string spawnSpeedMultiplier = "1";
 
 	string spawnPosRange = "100";
 	string spawnMassRange = "50";
 	string spawnNumberOfPlanets = "50";
 
+	string spawnRingWidth = "1";
+	string spawnTotal = "1";
+	string spawnDistance = "1";
+
 	Vector3 spawnPos;
-	Vector3 spawnVelocity;
+	float orbitMultiplier;
+
+	SpaceObject.bodyType spawnBType = SpaceObject.bodyType.planet;
+
+	public static bool choosingOrbitTarget;
+
+	SpaceObject spawnOrbitTarget;
 
 	List<SpaceObject> bodies;
 	List<SpaceObject> Rings;
@@ -109,43 +117,42 @@ public class SpaceManager : MonoBehaviour
 	// Use this for initialization
 	void Start () 
 	{
-
 		bodies = new List<SpaceObject>();
 		Rings = new List<SpaceObject>();
 
-		spawnBody("Sun", SpaceObject.bodyType.Sun, Vector3.zero, PStats.SunMass, PStats.SunDiam, null, 1);
+//		spawnBody("Sun", SpaceObject.bodyType.Sun, Vector3.zero, PStats.SunMass, PStats.SunDiam, null, 1);
+//
+//		spawnBody("Mercury", SpaceObject.bodyType.planet, new Vector3(PStats.MercuryDist, 0, 0), PStats.MercuryMass, PStats.MercuryDiam, bodies[0], 1);
+//
+//		spawnBody("Venus", SpaceObject.bodyType.planet, new Vector3(PStats.VenusDist, 0, 0), PStats.VenusMass, PStats.VenusDiam, bodies[0], 1);
+//
+//		spawnBody("Earth", SpaceObject.bodyType.planet, new Vector3(PStats.EarthDist, 0, 0), PStats.EarthMass, PStats.EarthDiam, bodies[0], 1);
+//
+//		spawnBody("Moon", SpaceObject.bodyType.planet, new Vector3(PStats.MoonDist, 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1], 10);
+//
+//		spawnBody("Mars", SpaceObject.bodyType.planet, new Vector3(PStats.MarsDist, 0, 0), PStats.MarsMass, PStats.MarsDiam, bodies[0], 1);
+//
+//		spawnBody("Deimos", SpaceObject.bodyType.planet, new Vector3(PStats.DeimosDist, 0, 0), PStats.DeimosMass, PStats.DeimosDiam, bodies[bodies.Count-1], 5);
+//
+//		spawnRing("Asteroids", Vector3.zero, PStats.AstMass, PStats.EarthDiam, bodies[0], 50, 336, 500, 50);
 
-		spawnBody("Mercury", SpaceObject.bodyType.planet, new Vector3(PStats.MercuryDist, 0, 0), PStats.MercuryMass, PStats.MercuryDiam, bodies[0], 1);
-
-		spawnBody("Venus", SpaceObject.bodyType.planet, new Vector3(PStats.VenusDist, 0, 0), PStats.VenusMass, PStats.VenusDiam, bodies[0], 1);
-
-		spawnBody("Earth", SpaceObject.bodyType.planet, new Vector3(PStats.EarthDist, 0, 0), PStats.EarthMass, PStats.EarthDiam, bodies[0], 1);
-
-		spawnBody("Moon", SpaceObject.bodyType.planet, new Vector3(PStats.MoonDist, 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1], 10);
-
-		spawnBody("Mars", SpaceObject.bodyType.planet, new Vector3(PStats.MarsDist, 0, 0), PStats.MarsMass, PStats.MarsDiam, bodies[0], 1);
-
-		spawnBody("Deimos", SpaceObject.bodyType.planet, new Vector3(PStats.DeimosDist, 0, 0), PStats.DeimosMass, PStats.DeimosDiam, bodies[bodies.Count-1], 5);
-
-		spawnRing("Asteroids", Vector3.zero, PStats.AstMass, PStats.EarthDiam, bodies[0], 50, 336, 200);
-
-		spawnBody("Jupiter", SpaceObject.bodyType.planet, new Vector3(PStats.JupiterDist, 0, 0), PStats.JupiterMass, PStats.JupiterDiam, bodies[0], 1);
-
-		spawnRing("Asteroids2", new Vector3(PStats.JupiterDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[bodies.Count-1], 50, 80, 50);
-
-		spawnBody("Saturn", SpaceObject.bodyType.planet, new Vector3(PStats.SaturnDist, 0, 0), PStats.SaturnMass, PStats.SaturnDiam, bodies[0], 1);
-
-		spawnRing("Asteroids3", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[bodies.Count-1], 50, 60, 50);
-
-		spawnBody("Uranus", SpaceObject.bodyType.planet, new Vector3(PStats.UranusDist, 0, 0), PStats.UranusMass, PStats.UranusDiam, bodies[0], 1);
-
-		spawnRing("Asteroids4", new Vector3(PStats.UranusDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[bodies.Count-1], 100, 40, 50);
-
-		spawnBody("Neptune", SpaceObject.bodyType.planet, new Vector3(PStats.NeptuneDist, 0, 0), PStats.NeptuneMass, PStats.NeptuneDiam, bodies[0], 1);
-
-		spawnRing("Asteroids5", new Vector3(PStats.NeptuneDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[bodies.Count-1], 50, 30, 50);
-
-		spawnBody("Pluto", SpaceObject.bodyType.planet, new Vector3(PStats.PlutoDist, 0, 0), PStats.PlutoMass, PStats.PlutoDiam, bodies[0], 1);
+//		spawnBody("Jupiter", SpaceObject.bodyType.planet, new Vector3(PStats.JupiterDist, 0, 0), PStats.JupiterMass, PStats.JupiterDiam, bodies[0], 1);
+//
+//		spawnRing("Asteroids2", new Vector3(PStats.JupiterDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[bodies.Count-1], 50, 80, 50);
+//
+//		spawnBody("Saturn", SpaceObject.bodyType.planet, new Vector3(PStats.SaturnDist, 0, 0), PStats.SaturnMass, PStats.SaturnDiam, bodies[0], 1);
+//
+//		spawnRing("Asteroids3", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[bodies.Count-1], 50, 60, 50);
+//
+//		spawnBody("Uranus", SpaceObject.bodyType.planet, new Vector3(PStats.UranusDist, 0, 0), PStats.UranusMass, PStats.UranusDiam, bodies[0], 1);
+//
+//		spawnRing("Asteroids4", new Vector3(PStats.UranusDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[bodies.Count-1], 100, 40, 50);
+//
+//		spawnBody("Neptune", SpaceObject.bodyType.planet, new Vector3(PStats.NeptuneDist, 0, 0), PStats.NeptuneMass, PStats.NeptuneDiam, bodies[0], 1);
+//
+//		spawnRing("Asteroids5", new Vector3(PStats.NeptuneDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[bodies.Count-1], 50, 30, 50);
+//
+//		spawnBody("Pluto", SpaceObject.bodyType.planet, new Vector3(PStats.PlutoDist, 0, 0), PStats.PlutoMass, PStats.PlutoDiam, bodies[0], 1);
 
 
 //		foreach(SpaceObject sO in bodies)
@@ -231,14 +238,7 @@ public class SpaceManager : MonoBehaviour
 			
 		case SpaceObject.bodyType.Ring:
 
-			Debug.Log (pos.x);
-
-			for(int i = 0; i < 100; i ++)
-			{
-				addAsteroid(pos, 80);
-
-				bodies[bodies.Count-1].init(_Name, bType, mass, diam, _OrbitTarget, orbitPeriod);
-			}
+			Debug.Log ("nope");
 			
 			break;
 
@@ -266,38 +266,64 @@ public class SpaceManager : MonoBehaviour
 	}
 
 	void spawnRing(string _Name, Vector3 orbit, float mass, float diam, SpaceObject _OrbitTarget, float orbitPeriod, 
-	               float distance, float amount)
+	               float distance, float amount, float ringWidth)
 	{
 		for(int i = 0; i < amount; i ++)
 		{
-			addAsteroid(orbit, distance);
+			randAngle = Random.value * 360;
+			
+			//				Debug.Log (randAngle);
+			
+			if(ringWidth == 0)
+			{
+				randDist = Random.Range(0,distance/2) - (distance)/4;
+			}
+			else
+			{
+				randDist = Random.Range(0, ringWidth);
+			}
+			
+			xPos = (distance + randDist) * Mathf.Cos(randAngle);
+			
+			//						Debug.Log (xPos);
+			
+			zPos = (distance + randDist) * Mathf.Sin(randAngle);
+			
+			//						Debug.Log (zPos);
+			
+			bodies.Add(Instantiate(ringTemplate, orbit + new Vector3(xPos, 0, zPos), Quaternion.identity) 
+			           as SpaceObject);
 			
 			bodies[bodies.Count-1].init(_Name, SpaceObject.bodyType.Ring, mass, diam, _OrbitTarget, orbitPeriod);
 		}
 	}
 
-	void addAsteroid(Vector3 pos, float _Distance)
-	{
-		randAngle = Random.value * 360;
-		
-		//				Debug.Log (randAngle);
-		
-		randDist = Random.Range(0,_Distance/2) - (_Distance)/4;
-
-
-		xPos = (_Distance + randDist) * Mathf.Cos(randAngle);
-		
-//						Debug.Log (xPos);
-		
-		zPos = (_Distance + randDist) * Mathf.Sin(randAngle);
-		
-//						Debug.Log (zPos);
-		
-		bodies.Add(Instantiate(ringTemplate, pos + new Vector3(xPos, 0, zPos), Quaternion.identity) 
-		           as SpaceObject);
-		
-		//				mass += Random.Range(0, mass/4) - mass/8;
-	}
+//	void addAsteroid(Vector3 pos, float _Distance)
+//	{
+//		randAngle = Random.value * 360;
+//		
+//		//				Debug.Log (randAngle);
+//
+//		if(_Distance == 0)
+//		{
+//			randDist = Random.Range(0,_Distance/2) - (_Distance)/4;
+//		}
+//		else
+//		{
+//			randDist = Random.Range(0, _Distance);
+//		}
+//
+//		xPos = (_Distance + randDist) * Mathf.Cos(randAngle);
+//		
+////						Debug.Log (xPos);
+//		
+//		zPos = (_Distance + randDist) * Mathf.Sin(randAngle);
+//		
+////						Debug.Log (zPos);
+//		
+//		bodies.Add(Instantiate(ringTemplate, pos + new Vector3(xPos, 0, zPos), Quaternion.identity) 
+//		           as SpaceObject);
+//	}
 
 	void Update()
 	{
@@ -376,7 +402,7 @@ public class SpaceManager : MonoBehaviour
 		}
 
 		spawningPositionRef.SetActive(spawningPlanet);
-		spawningVeloctiyRef.SetActive(spawningPlanet);
+//		spawningVeloctiyRef.SetActive(spawningPlanet);
 		
 		if(spawningPlanet)
 		{
@@ -386,19 +412,53 @@ public class SpaceManager : MonoBehaviour
 			
 			spawningPositionRef.transform.position = spawnPos;
 
-			int scale  = stringCheck(spawnMass);
+			float val = stringCheck(spawnDiameter);
 
-			spawningPositionRef.transform.localScale = new Vector3(scale, scale, scale);
+			spawningPositionRef.transform.localScale = new Vector3(val, val, val);
 
-			spawnVelocity.x = stringCheck(spawnVelocityX);
-			spawnVelocity.y = stringCheck(spawnVelocityY);
-			spawnVelocity.z = stringCheck(spawnVelocityZ);
+			orbitMultiplier = stringCheck(spawnSpeedMultiplier);
 			
-			spawningVeloctiyRef.transform.localScale = new Vector3(0.1f, spawnVelocity.magnitude, 0.1f);
+			spawningVeloctiyRef.transform.localScale = new Vector3(0.1f, orbitMultiplier, 0.1f);
 			
-			spawningVeloctiyRef.transform.position = spawnPos + spawnVelocity;
+			spawningVeloctiyRef.transform.position = spawnPos;
 			
-			spawningVeloctiyRef.transform.rotation = Quaternion.FromToRotation(Vector3.up, spawnVelocity.normalized);
+			spawningVeloctiyRef.transform.rotation = Quaternion.FromToRotation(Vector3.up, new Vector3(orbitMultiplier, 0,0));
+
+			switch(spawnBType)
+			{
+			case SpaceObject.bodyType.planet:
+
+				spawningPositionRef.renderer.material.color = new Color(0,1,0,0.5f);
+				spawningPositionRef.GetComponent<spawnRef>().setMesh(true);
+
+				break;
+
+			case SpaceObject.bodyType.Sun:
+
+				spawningPositionRef.renderer.material.color = new Color(1,0.5f,0,0.5f);
+				spawningPositionRef.GetComponent<spawnRef>().setMesh(true);
+
+				break;
+
+			case SpaceObject.bodyType.Ring:
+
+				spawningPositionRef.renderer.material.color = new Color(0,1,0,0.5f);
+				spawningPositionRef.GetComponent<spawnRef>().setMesh(false);
+
+				break;
+			}
+		}
+
+		if(Input.GetMouseButtonDown(0) && choosingOrbitTarget)
+		{
+			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+			RaycastHit hit;
+			
+			if(Physics.Raycast(ray, out hit))
+			{
+				spawnOrbitTarget = hit.transform.GetComponent<SpaceObject>();
+				choosingOrbitTarget = false;
+			}
 		}
 	}
 
@@ -407,6 +467,11 @@ public class SpaceManager : MonoBehaviour
 		AbsorbOnCollision.absorbOn = GUI.Toggle(new Rect(0, Screen.height - sH, sW * toggleAbsorb.Length, sH), AbsorbOnCollision.absorbOn, toggleAbsorb);
 
 		GUI.Label(new Rect(Screen.width/2, 0, 200, 30), "Total bodies: " + bodies.Count);
+
+		if(choosingOrbitTarget)
+		{
+			GUI.Label(new Rect(Screen.width/2, 40, 200, 30), "Select orbit target");
+		}
 
 		if(Time.timeScale == 0)
 		{
@@ -419,12 +484,12 @@ public class SpaceManager : MonoBehaviour
 
 		if(spawningPlanet)
 		{
-			spawningPos = new Rect(Screen.width - 200, 4, 200, 200);
+			spawningPos = new Rect(Screen.width - 220, 4, 220, 224);
 			spawnButton = "<";
 		}
 		else
 		{
-			spawningPos = new Rect(Screen.width - 18, 4, 200, 200);
+			spawningPos = new Rect(Screen.width - 18, 4, 220, 200);
 			spawnButton = ">";
 		}
 
@@ -442,43 +507,131 @@ public class SpaceManager : MonoBehaviour
 			}
 		}
 
-		GUI.BeginGroup(new Rect(18, 0, 200, 200));
+		//Single planet GUI
+		GUI.BeginGroup(new Rect(18, 0, 220, 224));
 
-		GUI.Box(new Rect(0, 0, 200, 200), "Planet Spawning options");
+		GUI.Box(new Rect(0, 0, 220, 224), "Body Spawning options");
 
-		GUI.Label(new Rect(0, 22, 160, 22), "Position");
-
-		GUI.Label(new Rect(0, 44, 22, 22), "X: ");
-		spawnPosX = GUI.TextField(new Rect(14, 44, 36, 22), spawnPosX);
-
-		GUI.Label(new Rect(56, 44, 22, 22), "Y: ");
-		spawnPosY = GUI.TextField(new Rect(70, 44, 36, 22), spawnPosY);
-
-		GUI.Label(new Rect(112, 44, 22, 22), "Z: ");
-		spawnPosZ = GUI.TextField(new Rect(126, 44, 36, 22), spawnPosZ);
-
-		GUI.Label(new Rect(0, 66, 160, 22), "Velocity");
+		if(GUI.Button(new Rect(0, 22, 50, 22), "Planet"))
+			spawnBType =  SpaceObject.bodyType.planet;
 		
-		GUI.Label(new Rect(0, 88, 22, 22), "X: ");
-		spawnVelocityX = GUI.TextField(new Rect(14, 88, 36, 22), spawnVelocityX);
+		if(GUI.Button(new Rect(52, 22, 50, 22), "Sun"))
+			spawnBType = SpaceObject.bodyType.Sun;
 		
-		GUI.Label(new Rect(56, 88, 22, 22), "Y: ");
-		spawnVelocityY = GUI.TextField(new Rect(70, 88, 36, 22), spawnVelocityY);
-		
-		GUI.Label(new Rect(112, 88, 22, 22), "Z: ");
-		spawnVelocityZ = GUI.TextField(new Rect(126, 88, 36, 22), spawnVelocityZ);
+		if(GUI.Button(new Rect(102, 22, 50, 22), "Ring"))
+			spawnBType = SpaceObject.bodyType.Ring;
 
-		GUI.Label(new Rect(0, 110, 60, 22), "Mass");
-		spawnMass = GUI.TextField(new Rect(0, 132, 72, 22), spawnMass);
-		GUI.Label (new Rect(76, 132, 16 * sW, 22), "(max Mass : " + SpaceObject.maxMass + ")");
+		GUI.Label(new Rect(154, 22, 40, 22), getBodyType(spawnBType));
 
-		if(GUI.Button(new Rect(0, 154, 120, 22), "Spawn Planet"))
+		switch(spawnBType)
 		{
+		case SpaceObject.bodyType.planet:
 
-			bodies.Add(Instantiate(planetTemplate, spawnPos, Quaternion.identity) as SpaceObject);
-			bodies[bodies.Count -1].rigidbody.AddForce(spawnVelocity);
-			bodies[bodies.Count -1].name = "body" + (bodies.Count-1);
-			bodies[bodies.Count -1].setMassAndSize(int.Parse(spawnMass),int.Parse(spawnMass));
+			GUI.Label(new Rect(0, 44, 160, 22), "Position");
+
+			GUI.Label(new Rect(0, 66, 22, 22), "X: ");
+			spawnPosX = GUI.TextField(new Rect(14, 66, 36, 22), spawnPosX);
+
+			GUI.Label(new Rect(56, 66, 22, 22), "Y: ");
+			spawnPosY = GUI.TextField(new Rect(70, 66, 36, 22), spawnPosY);
+
+			GUI.Label(new Rect(112, 66, 22, 22), "Z: ");
+			spawnPosZ = GUI.TextField(new Rect(126, 66, 36, 22), spawnPosZ);
+
+			break;
+
+		case SpaceObject.bodyType.Sun:
+
+			GUI.Label(new Rect(0, 44, 160, 22), "Position");
+			
+			GUI.Label(new Rect(0, 66, 22, 22), "X: ");
+			spawnPosX = GUI.TextField(new Rect(14, 66, 36, 22), spawnPosX);
+			
+			GUI.Label(new Rect(56, 66, 22, 22), "Y: ");
+			spawnPosY = GUI.TextField(new Rect(70, 66, 36, 22), spawnPosY);
+			
+			GUI.Label(new Rect(112, 66, 22, 22), "Z: ");
+			spawnPosZ = GUI.TextField(new Rect(126, 66, 36, 22), spawnPosZ);
+
+			break;
+
+		case SpaceObject.bodyType.Ring:
+
+			GUI.Label(new Rect(0, 44, 70, 22), "Ring Width");
+			spawnRingWidth = GUI.TextField(new Rect(70, 44, 36, 22), spawnRingWidth);
+
+			GUI.Label(new Rect(112, 44, 50, 22), "Total");
+			spawnTotal = GUI.TextField(new Rect(162, 44, 36, 22), spawnTotal);
+
+			GUI.Label(new Rect(0, 66, 70, 22), "Distance: ");
+			spawnDistance = GUI.TextField(new Rect(70, 66, 36, 22), spawnDistance);
+
+			break;
+		}
+
+		GUI.Label(new Rect(0, 88, 160, 22), "Orbit Speed multiplier");
+
+		spawnSpeedMultiplier = GUI.TextField(new Rect(0, 110, 72, 22), spawnSpeedMultiplier);
+
+		GUI.Label(new Rect(0, 132, 60, 22), "Mass");
+		spawnMass = GUI.TextField(new Rect(62, 132, 72, 22), spawnMass);
+
+		GUI.Label(new Rect(0, 154, 60, 22), "Diameter");
+		spawnDiameter = GUI.TextField(new Rect(62, 154, 72, 22), spawnDiameter);
+		
+		if(GUI.Button(new Rect(0, 176, 130, 22), "Select Orbit Target"))
+		{
+			if(bodies.Count > 0 && !choosingOrbitTarget)
+			{
+		   		choosingOrbitTarget = true;
+			}
+			else
+			{
+				choosingOrbitTarget = false;
+			}
+		}
+
+		if(spawnOrbitTarget)
+		{
+			GUI.Label(new Rect(132, 176, 75, 22), spawnOrbitTarget.name);
+		}
+		else
+		{
+			GUI.Label(new Rect(132, 176, 75, 22), "None");
+		}
+
+		if(GUI.Button(new Rect(0, 198, 60, 22), "Spawn"))
+		{
+			switch(spawnBType)
+			{
+			case SpaceObject.bodyType.planet:
+
+				spawnBody("body" + (bodies.Count-1), spawnBType, spawnPos, int.Parse(spawnMass), float.Parse(spawnDiameter), 
+			          	spawnOrbitTarget, float.Parse(spawnSpeedMultiplier)); 
+				break;
+
+			case SpaceObject.bodyType.Sun:
+
+				spawnBody("body" + (bodies.Count-1), spawnBType, spawnPos, int.Parse(spawnMass), float.Parse(spawnDiameter), 
+				          spawnOrbitTarget, float.Parse(spawnSpeedMultiplier)); 
+
+				break;
+
+			case SpaceObject.bodyType.Ring:
+
+				if(spawnOrbitTarget)
+				{
+					spawnRing("rings", spawnOrbitTarget.transform.position, float.Parse(spawnMass), 
+					          PStats.EarthDiam, spawnOrbitTarget, float.Parse(spawnSpeedMultiplier),
+					          float.Parse(spawnDistance), float.Parse(spawnTotal), float.Parse(spawnRingWidth));
+				}
+				else
+				{
+					GUI.Label(new Rect(Screen.width/2, 40, 200, 30), "You must select Orbit targets for Rings\t");
+				}
+
+				break;
+			}
 		}
 
 		GUI.EndGroup();
@@ -493,12 +646,12 @@ public class SpaceManager : MonoBehaviour
 		
 		if(spawningMultPlanets)
 		{
-			spawningMultPos = new Rect(Screen.width - 200, 204, 200, 200);
+			spawningMultPos = new Rect(Screen.width - 226, 226, 224, 200);
 			spawnMultButton = "<";
 		}
 		else
 		{
-			spawningMultPos = new Rect(Screen.width - 18, 204, 200, 200);
+			spawningMultPos = new Rect(Screen.width - 18, 226, 224, 200);
 			spawnMultButton = ">";
 		}
 		
@@ -670,7 +823,7 @@ public class SpaceManager : MonoBehaviour
 					}
 					else
 					{
-						Debug.Log("Error");
+//						Debug.Log("Error");
 					}
 
 				}
@@ -774,22 +927,46 @@ public class SpaceManager : MonoBehaviour
 		closestPlanetToPlayer = null;
 	}
 
-	int stringCheck(string value)
+	float stringCheck(string value)
 	{
 		if(value != "")
 		{
-			if(value.StartsWith("-") && value.Length == 1)
+			if((value.StartsWith("-") || value.StartsWith("0.") || value.StartsWith(".")) && value.Length == 1)
 		  	{
 				return 0;
 			}
 			else
 			{
-				return int.Parse(value);
+				return float.Parse(value);
 			}
 		}
 		else
 		{
 			return 0;
+		}
+	}
+
+	string getBodyType(SpaceObject.bodyType bType)
+	{
+		switch(bType)
+		{
+		case SpaceObject.bodyType.planet:
+
+			return "Planet";
+
+		case SpaceObject.bodyType.Sun:
+
+			return "Sun";
+
+		case SpaceObject.bodyType.Ring:
+
+			return "Ring";
+
+		default:
+
+			Debug.LogError("No body type found");
+
+			return "null";
 		}
 	}
 }

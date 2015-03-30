@@ -13,20 +13,20 @@ public static class PStats
 
 	#region Diameter (Km) - Planets and Moons
 
-	public static float SunDiam 	= 1392684;
-	public static float MercuryDiam	= 0004879;
-	public static float VenusDiam	= 0012104;
-	public static float EarthDiam	= 0012756;
-	public static float MarsDiam	= 0006792;
-	public static float JupiterDiam = 0142982;
-	public static float SaturnDiam 	= 0120536;
-	public static float UranusDiam	= 0051118;
-	public static float NeptuneDiam	= 0049528;
-	public static float PlutoDiam	= 0002390;
+	public static float SunDiam 	= 46.5f; //46.5
+	public static float MercuryDiam	= 0.163f; //0.163
+	public static float VenusDiam	= 0.405f; //0.405
+	public static float EarthDiam	= 0.426f; //0.426
+	public static float MarsDiam	= 0.227f; //0.227
+	public static float JupiterDiam = 4.78f; //4.78
+	public static float SaturnDiam 	= 4.03f; //4.03
+	public static float UranusDiam	= 1.71f; //1.71
+	public static float NeptuneDiam	= 1.65f; //1.65
+	public static float PlutoDiam	= 0.08f; //0.08
 
 	//Moons
-	public static float MoonDiam	= 0003340;
-	public static float DeimosDiam 	= 0003200;
+	public static float MoonDiam	= 0.111f; //0.111
+	public static float DeimosDiam 	= 0.107f; //0.107
 	public static float Phobos		= 0000560;
 
 	#endregion
