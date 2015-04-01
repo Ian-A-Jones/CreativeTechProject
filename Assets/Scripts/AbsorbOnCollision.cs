@@ -3,8 +3,7 @@ using System.Collections;
 
 public class AbsorbOnCollision : MonoBehaviour 
 {
-	public SpaceManager spaceManagerObj;
-	public SpaceManager spaceManagerScript;
+	public static SpaceManager spaceManagerScript;
 
 	public static bool absorbOn;
 

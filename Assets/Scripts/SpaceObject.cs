@@ -33,17 +33,11 @@ public class SpaceObject : MonoBehaviour
 
 	public static bool bMaintainOrbit = true;
 
-	public enum bodyType
-	{
-		planet,
-		Sun,
-		Ring,
-		BlackHole,
-	};
+	BodyType bType;
 
-	bodyType bType;
+	static bool drawTrail;
 
-	public void init(string name, bodyType _BType, float mass, float diam, SpaceObject _OrbitTarget, float orbitPeriod)
+	public void init(string name, BodyType _BType, float mass, float diam, SpaceObject _OrbitTarget, float orbitPeriod)
 	{
 		this.name = name;
 
@@ -75,7 +69,7 @@ public class SpaceObject : MonoBehaviour
 			
 //			calcTrail(orbitDistance, avgOrbitVelocity);
 
-			if(bType == bodyType.Ring)
+			if(bType == BodyType.Ring)
 			{
 				speedAmp = 1;
 				distanceAmp = 100;
@@ -89,13 +83,13 @@ public class SpaceObject : MonoBehaviour
 		}
 	}
 
-	public void init(string _Name, bodyType _BType, float mass, float diam, float velocity)
+	public void init(string _Name, BodyType _BType, float mass, float diam, float velocity)
 	{
 		name = _Name;
 
 		bType = _BType;
 
-		setMassAndSize(mass, PStats.inAUnits(diam));
+		setMassAndSize(mass, diam);
 
 		rigidbody.AddForce(Camera.main.transform.forward * velocity);
 
@@ -104,20 +98,27 @@ public class SpaceObject : MonoBehaviour
 
 	public void Start()
 	{
-//		if(bType != bodyType.Ring)
+//		if(bType != BodyType.Ring)
 //		{
-			StartCoroutine(maintainOrbit());
+		StartCoroutine(maintainOrbit());
+		rigidbody.AddTorque(Vector3.up * 10);
 //		}
 	}
 
 	void calcTrail()
 	{
-		if(GetComponentInChildren<TrailRenderer>().enabled)
-		{
 			GetComponentInChildren<TrailRenderer>().time = 2*Mathf.PI*distance/speed; //Magic number translated speed of object into a estimated time for trail to appear
 			GetComponentInChildren<TrailRenderer>().startWidth = transform.localScale.x;
 			GetComponentInChildren<TrailRenderer>().endWidth = transform.localScale.x*transform.localScale.x/10; //Half size to make end obvious
+	}
+
+	void Update()
+	{
+		if(Input.GetKeyDown(KeyCode.T) && bType != BodyType.Ring)
+		{
+			GetComponentInChildren<TrailRenderer>().enabled = !GetComponentInChildren<TrailRenderer>().enabled;
 		}
+
 	}
 
 	void FixedUpdate()
@@ -130,7 +131,7 @@ public class SpaceObject : MonoBehaviour
 
 	public bool canOrbit(SpaceObject otherSObj)
 	{
-		if(orbitOn && orbitTarget == null || orbitTarget == otherSObj || otherSObj.bType == bodyType.BlackHole)
+		if(orbitOn && orbitTarget == null || orbitTarget == otherSObj || otherSObj.bType == BodyType.BlackHole)
 			//|| Vector3.Distance(this.transform.position, otherSObj.transform.position) < 25
 		{
 //			if(this.name == "Moon")
@@ -153,20 +154,20 @@ public class SpaceObject : MonoBehaviour
 
 		switch(bType)
 		{
-		case bodyType.planet:
+		case BodyType.planet:
 
 			transform.localScale = threeAsOne(diameter * pScale);
 			break;
-		case bodyType.Sun:
+		case BodyType.Sun:
 
 			transform.localScale = threeAsOne(diameter * sScale);
 			break;
-		case bodyType.Ring:
+		case BodyType.Ring:
 
 			transform.localScale = threeAsOne(diameter * rScale);
 			break;
 
-		case bodyType.BlackHole:
+		case BodyType.BlackHole:
 			
 			transform.localScale = threeAsOne(diameter * sScale);
 			break;
@@ -272,123 +273,80 @@ public class SpaceObject : MonoBehaviour
 		{
 			if(orbitTarget && bMaintainOrbit)
 			{
-				clampVelocity();
-				clampDistance();
+				//Calculate appropriates values
+				speed = rigidbody.velocity.magnitude;  // test current object speed
+				
+				deltaPosition = this.transform.position - orbitTarget.transform.position;
+
+				distance = deltaPosition.magnitude;
+
+				diff = orbitDistance - distance;
+
+				if(distance < 0)
+				{
+					Debug.Log ("Wrong");
+				}
+
+				deltaPosition.Normalize();
+
+				//Speed spring
+				rigidbody.AddForce(new Vector3(directionToOrbitTarget.z * -1, 0, directionToOrbitTarget.x) * (avgOrbitVelocity - speed) * speedAmp * Time.deltaTime);
+				
+				rigidbody.velocity = Vector3.ClampMagnitude(rigidbody.velocity, avgOrbitVelocity * 7f);
+
+				//Distance spring
+				switch(bType)
+				{
+				case BodyType.Ring:
+					
+					rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp/4  * Time.deltaTime);
+					break;
+					
+				case BodyType.planet:
+					
+					rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp  * Time.deltaTime);
+
+					break;
+					
+				case BodyType.Sun:
+					
+					rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp  * Time.deltaTime);
+					break;
+					
+				case BodyType.BlackHole:
+					
+					rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp  * Time.deltaTime);
+					break;
+				}
+
+				if((distance > 1.3f * orbitDistance || distance < 0.7f * orbitDistance) && orbitTarget)
+				{
+					Debug.Log ("Breaking Orbit of: " + name);
+					orbitTarget = null;
+				}	
 
 				calcTrail();
 			}
 
 			switch(bType)
 			{
-				case bodyType.planet:
+				case BodyType.planet:
 					yield return null;
 					break;
 
-				case bodyType.Sun:
+				case BodyType.Sun:
 					yield return null;
 					break;
 
-				case bodyType.Ring:
+				case BodyType.Ring:
 					yield return new WaitForSeconds(0.5f);
 //					yield return null;
 					break;
 
-				case bodyType.BlackHole:
+				case BodyType.BlackHole:
 					yield return null;
 					break;
 			}
 		}
-	}
-
-	public void clampVelocity()
-	{
-//		Debug.Log ("Velocity: " + rigidbody.velocity.magnitude);
-
-		speed = rigidbody.velocity.magnitude;  // test current object speed
-
-		Vector3 deltaPosition = this.transform.position - orbitTarget.transform.position;
-
-		deltaPosition.Normalize();
-
-//		deltaPosition *= Mathf.PI/2;
-
-//		Debug.DrawRay(this.transform.position, deltaPosition);
-
-//		Debug.DrawRay(this.transform.position, deltaPosition.normalized, Color.red);
-
-		Debug.DrawRay(transform.position, new Vector3(directionToOrbitTarget.z * -1, rigidbody.velocity.normalized.y, directionToOrbitTarget.x), Color.green);
-		rigidbody.AddForce(new Vector3(directionToOrbitTarget.z * -1, 0, directionToOrbitTarget.x) * (avgOrbitVelocity - speed) * speedAmp * Time.deltaTime);
-
-		rigidbody.velocity = Vector3.ClampMagnitude(rigidbody.velocity, avgOrbitVelocity * 7f);
-//		if (speed < (avgOrbitVelocity * minOrbitP) && speed > 0)
-//		{
-//			acclSpeed = speed + (avgOrbitVelocity);
-//			
-//			normalisedVelocity = rigidbody.velocity.normalized;
-//			brakeVelocity = normalisedVelocity * acclSpeed;  // make the brake Vector3 value
-//			
-//			rigidbody.AddForce(brakeVelocity * avgOrbitVelocity/speed * speedAmp * Time.deltaTime);  // apply opposing brake force
-//			
-//		}
-//
-//		if (speed > (avgOrbitVelocity * maxOrbitP) && speed > 0)
-	}
-//			
-	//TODO:Break clamp if goes too far
-	public void clampDistance()
-	{
-		distance = Vector3.Distance(this.transform.position, orbitTarget.transform.position);
-
-//		Debug.Log ("Distance to Sun: " + distance);
-
-		deltaPosition = this.transform.position - orbitTarget.transform.position;
-		
-		//		Debug.DrawLine(this.transform.position, deltaPosition * 0.8f, Color.red); 
-		//
-//		Debug.DrawRay(transform.position, -deltaPosition, Color.red);
-
-		diff = orbitDistance - distance;
-		switch(bType)
-		{
-			case bodyType.Ring:
-				
-				rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp/4  * Time.deltaTime);
-				break;
-
-			case bodyType.planet:
-				
-				rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp  * Time.deltaTime);
-					
-//				Debug.Log (distance);
-				if((distance > 1.3f * orbitDistance || distance < 0.7f * orbitDistance) && orbitTarget)
-				{
-					Debug.Log ("Breaking Orbit of: " + name);
-					orbitTarget = null;
-				}
-				break;
-
-			case bodyType.Sun:
-			
-				rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp  * Time.deltaTime);
-				break;
-
-			case bodyType.BlackHole:
-				
-				rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp  * Time.deltaTime);
-				break;
-		}
-
-
-		//
-//		if(distance < orbitDistance * minOrbitP)
-//		{
-//			rigidbody.AddForce(deltaPosition.normalized * orbitDistance/distance * distanceAmp * Time.deltaTime);
-//		}
-//		
-//		if(distance > orbitDistance * maxOrbitP)
-//		{
-////			Debug.Log ("Pushing force str: " + (distance/orbitDistance * distanceAmp * Time.deltaTime));
-//			rigidbody.AddForce(-deltaPosition.normalized * distance/orbitDistance * distanceAmp * Time.deltaTime);
-//		}
 	}
 }

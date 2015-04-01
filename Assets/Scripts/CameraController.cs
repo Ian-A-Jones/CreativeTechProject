@@ -7,7 +7,7 @@ public class CameraController : MonoBehaviour
 
 	public GameObject target;
 	public SpaceManager sManager;
-	public int zoomSpeed;
+	public float zoomSpeed;
 
 	float x, y;
 	public float zoom = 0;
@@ -102,6 +102,26 @@ public class CameraController : MonoBehaviour
 			transform.position = new Vector3(x,y,0);
 		}
 
+		if(Input.GetKey(KeyCode.LeftShift))
+		{
+			moveForce = 10;
+		}
+
+		if(Input.GetKeyUp(KeyCode.LeftShift))
+		{
+			moveForce = 1;
+		}
+
+		if(Input.GetKey(KeyCode.LeftControl))
+		{
+			moveForce = 0.25f;
+		}
+		
+		if(Input.GetKeyUp(KeyCode.LeftControl))
+		{
+			moveForce = 1;
+		}
+
 		if(Input.GetKey(KeyCode.W))
 		{
 			transform.position +=(transform.forward * moveForce);
@@ -137,6 +157,12 @@ public class CameraController : MonoBehaviour
 //			Debug.Log ("Zooming");
 //			Debug.Log (zoom);
 			zoom -= Input.GetAxis("Mouse ScrollWheel") * zoomSpeed;
+
+			if(target)
+			{
+				zoomSpeed = Mathf.Sqrt(Vector3.Distance(transform.position, target.transform.position));
+				zoom = Mathf.Clamp(zoom, target.transform.localScale.x *1.2f, zoom);
+			}
 //			Debug.Log (zoom);
 //			transform.position +=(transform.forward * zoom);
 		}

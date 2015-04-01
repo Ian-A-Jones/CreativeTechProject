@@ -19,6 +19,7 @@ public class BlackHole : MonoBehaviour {
 	{
 //		Debug.Log ("Collided");
 		sM.removeBodyAt(collision.transform.GetInstanceID());
+
 //		Debug.Log (collision.transform.GetInstanceID());
 	}
 
