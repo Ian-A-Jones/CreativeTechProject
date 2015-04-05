@@ -48,6 +48,7 @@ public class SpaceObject : MonoBehaviour
 		//Orbit Target logic
 		if(_OrbitTarget != null)
 		{
+			this.rigidbody.drag = 0.1f;
 			//Make it larger
 			GetComponentInChildren<MeshRenderer>().transform.localScale *= oTScale;
 			
@@ -114,9 +115,14 @@ public class SpaceObject : MonoBehaviour
 
 	void Update()
 	{
+		rigidbody.velocity =  Vector3.ClampMagnitude(rigidbody.velocity, 200);
+
 		if(Input.GetKeyDown(KeyCode.T) && bType != BodyType.Ring)
 		{
-			GetComponentInChildren<TrailRenderer>().enabled = !GetComponentInChildren<TrailRenderer>().enabled;
+			if(GetComponentInChildren<TrailRenderer>())
+			{
+				GetComponentInChildren<TrailRenderer>().enabled = !GetComponentInChildren<TrailRenderer>().enabled;
+			}
 		}
 
 	}
@@ -271,6 +277,7 @@ public class SpaceObject : MonoBehaviour
 	{
 		while(this.enabled)
 		{
+
 			if(orbitTarget && bMaintainOrbit)
 			{
 				//Calculate appropriates values
@@ -305,7 +312,6 @@ public class SpaceObject : MonoBehaviour
 				case BodyType.planet:
 					
 					rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp  * Time.deltaTime);
-
 					break;
 					
 				case BodyType.Sun:
@@ -323,6 +329,7 @@ public class SpaceObject : MonoBehaviour
 				{
 					Debug.Log ("Breaking Orbit of: " + name);
 					orbitTarget = null;
+					rigidbody.drag = 0;
 				}	
 
 				calcTrail();
