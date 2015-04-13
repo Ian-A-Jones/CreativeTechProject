@@ -48,7 +48,7 @@ public class SpaceManager : MonoBehaviour
 	bool canPause = true;
 	
 	//Whether user is spawning a planet
-	bool spawningPlanet = false;
+	bool spawingBody = false;
 	bool spawningMultPlanets = false;
 
 	string spawnButton = "";
@@ -110,11 +110,8 @@ public class SpaceManager : MonoBehaviour
 	float zPos;
 
 	int fB, sB;
-	int cB = 0;
 
-	int start = 0, 
-		finish, 
-		step = 50;
+	int step = 50;
 
 	int fStart = 0, sStart = 0, comparisons = 0;
 
@@ -153,34 +150,34 @@ public class SpaceManager : MonoBehaviour
 
 		spawnBody("Pluto", BodyType.planet, new Vector3(PStats.PlutoDist, 0, 0), PStats.PlutoMass, PStats.PlutoDiam, bodies[0], 1);
 
-		spawnRing("AstBelt", Vector3.zero, PStats.AstMass, PStats.EarthDiam, bodies[0], 1, 336, 100, 150);
+//		spawnRing("AstBelt", Vector3.zero, PStats.AstMass, PStats.EarthDiam, bodies[0], 1, 336, 150, 150);
 
-		spawnRing("JupitersBelt", new Vector3(PStats.JupiterDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[7], 3, 30, 25, 10);
-
-		//Saturns Rings
-		spawnRing("Ring1", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.MoonDiam, bodies[8], 1, 6, 30, 0);
-		
-		spawnRing("Ring2", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.MoonDiam, bodies[8], 1, 6.5f, 30, 0);
-		
-		spawnRing("Ring3", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.MoonDiam, bodies[8], 1, 7, 30, 0);
-		
-		spawnRing("Ring4", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.MoonDiam, bodies[8], 1, 7.5f, 30, 0);
-		
-		spawnRing("Ring5", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.MoonDiam, bodies[8], 1, 8, 30, 0);
-		
-		spawnRing("Ring6", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.MoonDiam, bodies[8], 1, 8.5f, 30, 0);
-
-		spawnRing("Ring7", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.MoonDiam, bodies[8], 1, 9, 30, 0);
-
-		spawnRing("Ring8", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.MoonDiam, bodies[8], 1, 9.5f, 30, 0);
-
-		spawnRing("Ring9", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.MoonDiam, bodies[8], 1, 10, 30, 0);
-
-		spawnRing("Ring10", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.MoonDiam, bodies[8], 1, 10.5f, 30, 0);
-		
-		spawnRing("UranusRings", new Vector3(PStats.UranusDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[9], 50, 40, 50, 30);
-
-		spawnRing("NeptuneRings", new Vector3(PStats.NeptuneDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[10], 50, 30, 50, 20);
+//		spawnRing("JupitersBelt", new Vector3(PStats.JupiterDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[7], 3, 30, 25, 10);
+//
+//		//Saturns Rings
+//		spawnRing("Ring1", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.MoonDiam, bodies[8], 10, 6, 30, 0);
+//		
+//		spawnRing("Ring2", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.MoonDiam, bodies[8], 10, 6.5f, 30, 0);
+//		
+//		spawnRing("Ring3", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.MoonDiam, bodies[8], 10, 7, 30, 0);
+//		
+//		spawnRing("Ring4", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.MoonDiam, bodies[8], 10, 7.5f, 30, 0);
+//		
+//		spawnRing("Ring5", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.MoonDiam, bodies[8], 10, 8, 30, 0);
+//		
+//		spawnRing("Ring6", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.MoonDiam, bodies[8], 10, 8.5f, 30, 0);
+//
+//		spawnRing("Ring7", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.MoonDiam, bodies[8], 10, 9, 30, 0);
+//
+//		spawnRing("Ring8", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.MoonDiam, bodies[8], 10, 9.5f, 30, 0);
+//
+//		spawnRing("Ring9", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.MoonDiam, bodies[8], 10, 10, 30, 0);
+//
+//		spawnRing("Ring10", new Vector3(PStats.SaturnDist, 0, 0), PStats.AstMass, PStats.MoonDiam, bodies[8], 10, 10.5f, 30, 0);
+//		
+//		spawnRing("UranusRings", new Vector3(PStats.UranusDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[9], 50, 40, 50, 30);
+//
+//		spawnRing("NeptuneRings", new Vector3(PStats.NeptuneDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[10], 50, 30, 50, 20);
 
 		
 //		foreach(SpaceObject sO in bodies)
@@ -189,15 +186,6 @@ public class SpaceManager : MonoBehaviour
 //		}
 
 		Time.timeScale = timeScale;
-
-//		if(bodies.Count < step)
-//		{
-//			finish = bodies.Count;
-//		}
-//		else
-//		{
-//			finish = step;
-//		}
 	}
 
 	IEnumerator spawnBodies()
@@ -349,16 +337,6 @@ public class SpaceManager : MonoBehaviour
 
 	void Update()
 	{
-		if(Input.GetKeyDown(KeyCode.Y))
-		{
-			Debug.Log ("Spawning Black Hole");
-
-			spawnBody("BlackHole", BodyType.BlackHole, Vector3.up*100, 1000000, PStats.JupiterDiam, null, 0);
-
-//			addAsteroid(PStats.ABelt);
-
-//			bodies[bodies.Count-1].init(name, BodyType.Ring, PStats.AstMass, PStats.EarthDiam, bodies[0], 50);
-		}
 
 		if(Input.GetKeyDown(KeyCode.F))
 		{
@@ -418,11 +396,8 @@ public class SpaceManager : MonoBehaviour
 				CentreOfMass.SetActive(true);
 			}
 		}
-
-		spawningPosition.SetActive(spawningPlanet);
-//		spawningVeloctiy.SetActive(spawningPlanet);
 		
-		if(spawningPlanet)
+		if(spawingBody)
 		{
 			orbitMultiplier = stringCheck(spawnSpeedMultiplier);
 
@@ -430,6 +405,9 @@ public class SpaceManager : MonoBehaviour
 			{
 			case BodyType.planet:
 			case BodyType.Sun:
+
+				spawningPosition.SetActive(true);
+				spawningVeloctiy.SetActive(true);
 
 				spawningPosition.GetComponent<MeshFilter>().sharedMesh = SpawnPosSphere.GetComponent<MeshFilter>().sharedMesh;
 
@@ -463,24 +441,57 @@ public class SpaceManager : MonoBehaviour
 
 			case BodyType.Ring:
 
-				spawningPosition.GetComponent<MeshFilter>().sharedMesh = SpawnPosCylinder.GetComponent<MeshFilter>().sharedMesh;
+				spawningPosition.SetActive(true);
+				spawningVeloctiy.SetActive(true);
 
-				if(spawnOrbitTarget)
-				{
-					spawningPosition.transform.position = spawnOrbitTarget.transform.position + Vector3.right * stringCheck(spawnDistance);
-				}
-				else
-				{
-					spawningPosition.transform.position = Vector3.zero;
-				}
+				spawningPosition.GetComponent<MeshFilter>().sharedMesh = SpawnPosCylinder.GetComponent<MeshFilter>().sharedMesh;
 
 				spawningPosition.transform.eulerAngles = Vector3.forward*90;	
 				spawningPosition.transform.localScale = new Vector3(0.5f, stringCheck(spawnDistance), 0.5f);
 
+				if(spawnOrbitTarget)
+				{
+					spawningPosition.transform.position = spawnOrbitTarget.transform.position;
+					spawningVeloctiy.transform.position = spawningPosition.transform.position + Vector3.right * spawningPosition.transform.localScale.y;
+				}
+				else
+				{
+					spawningPosition.SetActive(false);
+					spawningVeloctiy.SetActive(false);
+				}
+
+				spawningVeloctiy.transform.localScale = new Vector3(0.5f, stringCheck(spawnRingWidth)+1, 0.5f);
+
 				spawningPosition.renderer.material.color = new Color(0,1,0,0.5f);
 
 				break;
+
+			case BodyType.BlackHole:
+
+				spawningPosition.SetActive(true);
+				spawningVeloctiy.SetActive(false);
+
+				spawningPosition.GetComponent<MeshFilter>().sharedMesh = SpawnPosSphere.GetComponent<MeshFilter>().sharedMesh;
+
+				spawningPosition.renderer.material.color = new Color(0,0,1,0.5f);
+
+				spawnPos.x = stringCheck(spawnPosX);
+				spawnPos.y = stringCheck(spawnPosY);
+				spawnPos.z = stringCheck(spawnPosZ);
+				
+				spawningPosition.transform.position = spawnPos;
+
+				spawningPosition.transform.localScale = new Vector3(PStats.JupiterDiam, 
+				                                                    PStats.JupiterDiam, 
+				                                                    PStats.JupiterDiam);
+
+				break;
 			}
+		}
+		else
+		{
+			spawningPosition.SetActive(false);
+			spawningVeloctiy.SetActive(false);
 		}
 
 		if(Input.GetMouseButtonDown(0) && choosingOrbitTarget)
@@ -516,82 +527,74 @@ public class SpaceManager : MonoBehaviour
 
 		Rect spawningPos;
 
-		if(spawningPlanet)
+		if(spawingBody)
 		{
-			spawningPos = new Rect(Screen.width - 220, 4, 220, 224);
-			spawnButton = "<";
+			spawningPos = new Rect(Screen.width - 260, 4, 280, 224);
+			spawnButton = ">";
 		}
 		else
 		{
-			spawningPos = new Rect(Screen.width - 18, 4, 220, 200);
-			spawnButton = ">";
+			spawningPos = new Rect(Screen.width - 18, 4, 260, 200);
+			spawnButton = "<";
 		}
 
 		GUI.BeginGroup(spawningPos);
 
 		if(GUI.Button(new Rect(0,0, 18, 22), spawnButton))
 		{
-			if(spawningPlanet)
+			if(spawingBody)
 			{
-				spawningPlanet = false;
+				spawingBody = false;
 			}
 			else
 			{
-				spawningPlanet = true;
+				spawingBody = true;
 			}
 		}
 
 		//Single planet GUI
-		GUI.BeginGroup(new Rect(18, 0, 220, 224));
+		GUI.BeginGroup(new Rect(18, 0, 280, 195));
 
-		GUI.Box(new Rect(0, 0, 220, 224), "Body Spawning options");
+		GUI.Box(new Rect(0, 0, 280, 224), "Body Spawning options");
 
 		if(GUI.Button(new Rect(0, 22, 50, 22), "Planet"))
 		{
 			spawnBType =  BodyType.planet;
 		}
 
-		if(GUI.Button(new Rect(52, 22, 50, 22), "Sun"))
+		if(GUI.Button(new Rect(52, 22, 35, 22), "Sun"))
 		{
 			spawnBType = BodyType.Sun;
 		}
 		
-		if(GUI.Button(new Rect(102, 22, 50, 22), "Ring"))
+		if(GUI.Button(new Rect(89, 22, 40, 22), "Ring"))
 		{
 			spawnBType = BodyType.Ring;
 		}
 
-		GUI.Label(new Rect(154, 22, 40, 22), getBodyType(spawnBType));
+		if(GUI.Button(new Rect(131, 22, 56, 22), "B.Hole"))
+		{
+			spawnBType = BodyType.BlackHole;
+		}
+
+		GUI.Label(new Rect(190, 22, 40, 22), getBodyType(spawnBType));
 
 		switch(spawnBType)
 		{
 		case BodyType.planet:
-
-			GUI.Label(new Rect(0, 44, 160, 22), "Position");
-
-			GUI.Label(new Rect(0, 66, 22, 22), "X: ");
-			spawnPosX = GUI.TextField(new Rect(14, 66, 36, 22), spawnPosX);
-
-			GUI.Label(new Rect(56, 66, 22, 22), "Y: ");
-			spawnPosY = GUI.TextField(new Rect(70, 66, 36, 22), spawnPosY);
-
-			GUI.Label(new Rect(112, 66, 22, 22), "Z: ");
-			spawnPosZ = GUI.TextField(new Rect(126, 66, 36, 22), spawnPosZ);
-
-			break;
-
 		case BodyType.Sun:
+		case BodyType.BlackHole:
 
-			GUI.Label(new Rect(0, 44, 160, 22), "Position");
-			
-			GUI.Label(new Rect(0, 66, 22, 22), "X: ");
-			spawnPosX = GUI.TextField(new Rect(14, 66, 36, 22), spawnPosX);
-			
-			GUI.Label(new Rect(56, 66, 22, 22), "Y: ");
-			spawnPosY = GUI.TextField(new Rect(70, 66, 36, 22), spawnPosY);
-			
-			GUI.Label(new Rect(112, 66, 22, 22), "Z: ");
-			spawnPosZ = GUI.TextField(new Rect(126, 66, 36, 22), spawnPosZ);
+			GUI.Label(new Rect(0, 44, 52, 22), "Position:");
+
+			GUI.Label(new Rect(54, 44, 22, 22), "X:");
+			spawnPosX = GUI.TextField(new Rect(68, 44, 36, 22), spawnPosX);
+		
+			GUI.Label(new Rect(106, 44, 22, 22), "Y:");
+			spawnPosY = GUI.TextField(new Rect(122, 44, 36, 22), spawnPosY);
+
+			GUI.Label(new Rect(162, 44, 22, 22), "Z:");
+			spawnPosZ = GUI.TextField(new Rect(178, 44, 36, 22), spawnPosZ);
 
 			break;
 
@@ -609,38 +612,41 @@ public class SpaceManager : MonoBehaviour
 			break;
 		}
 
-		GUI.Label(new Rect(0, 88, 160, 22), "Orbit Speed multiplier");
-
-		spawnSpeedMultiplier = GUI.TextField(new Rect(0, 110, 72, 22), spawnSpeedMultiplier);
-
-		GUI.Label(new Rect(0, 132, 60, 22), "Mass");
-		spawnMass = GUI.TextField(new Rect(62, 132, 72, 22), spawnMass);
-
-		GUI.Label(new Rect(0, 154, 60, 22), "Diameter");
-		spawnDiameter = GUI.TextField(new Rect(62, 154, 72, 22), spawnDiameter);
-		
-		if(GUI.Button(new Rect(0, 176, 130, 22), "Select Orbit Target"))
+		if(spawnBType != BodyType.BlackHole)
 		{
-			if(bodies.Count > 0 && !choosingOrbitTarget)
+			GUI.Label(new Rect(0, 88, 130, 22), "Orbit Speed multiplier");
+
+			spawnSpeedMultiplier = GUI.TextField(new Rect(132, 88, 68, 22), spawnSpeedMultiplier);
+
+			GUI.Label(new Rect(0, 108, 60, 22), "Mass");
+			spawnMass = GUI.TextField(new Rect(132, 108, 68, 22), spawnMass);
+
+			GUI.Label(new Rect(0, 128, 60, 22), "Diameter");
+			spawnDiameter = GUI.TextField(new Rect(132, 128, 68, 22), spawnDiameter);
+			
+			if(GUI.Button(new Rect(0, 148, 130, 22), "Select Orbit Target"))
 			{
-		   		choosingOrbitTarget = true;
+				if(bodies.Count > 0 && !choosingOrbitTarget)
+				{
+			   		choosingOrbitTarget = true;
+				}
+				else
+				{
+					choosingOrbitTarget = false;
+				}
+			}
+
+			if(spawnOrbitTarget)
+			{
+				GUI.Label(new Rect(132, 148, 75, 22), spawnOrbitTarget.name);
 			}
 			else
 			{
-				choosingOrbitTarget = false;
+				GUI.Label(new Rect(132, 148, 75, 22), "None");
 			}
 		}
 
-		if(spawnOrbitTarget)
-		{
-			GUI.Label(new Rect(132, 176, 75, 22), spawnOrbitTarget.name);
-		}
-		else
-		{
-			GUI.Label(new Rect(132, 176, 75, 22), "None");
-		}
-
-		if(GUI.Button(new Rect(0, 198, 60, 22), "Spawn"))
+		if(GUI.Button(new Rect(0, 170, 60, 22), "Spawn"))
 		{
 			switch(spawnBType)
 			{
@@ -661,6 +667,8 @@ public class SpaceManager : MonoBehaviour
 
 				if(spawnOrbitTarget)
 				{
+					Debug.Log (spawnDistance);
+
 					spawnRing("rings", spawnOrbitTarget.transform.position, float.Parse(spawnMass), 
 					          PStats.EarthDiam, spawnOrbitTarget, float.Parse(spawnSpeedMultiplier),
 					          float.Parse(spawnDistance), float.Parse(spawnTotal), float.Parse(spawnRingWidth));
@@ -671,6 +679,12 @@ public class SpaceManager : MonoBehaviour
 					          float.Parse(spawnDiameter), null, float.Parse(spawnSpeedMultiplier),
 					          float.Parse(spawnDistance), float.Parse(spawnTotal), float.Parse(spawnRingWidth));
 				}
+
+				break;
+
+			case BodyType.BlackHole:
+
+				spawnBody("Black Hole", BodyType.BlackHole, spawnPos, 1000000, PStats.JupiterDiam, null, 0);
 
 				break;
 			}
@@ -809,11 +823,6 @@ public class SpaceManager : MonoBehaviour
 				{	
 					comparisons ++;
 
-//					if(bodies[fB].name == "Moon" || bodies[sB].name == "Moon")
-//					{
-//						Debug.Log (bodies[fB].name + " " + bodies[sB].name);
-//					}
-					//					Debug.Log ("fB + sB: " + fB + sB);
 					//Find vector from first body to second body
 
 					deltaPosition = bodies[sB].transform.position - bodies[fB].transform.position;
@@ -834,19 +843,7 @@ public class SpaceManager : MonoBehaviour
 						
 						relDistance = deltaPosition.sqrMagnitude;
 						//Debug.Log ("Square Radius: " + relDistance);
-
-						if(bodies[fB].tag == "Player")
-						{
-							if((closestPlanetToPlayer == null || bodies[sB].name != closestPlanetToPlayer.name) &&
-							   (relDistance < relDistPlanetToPlayer || relDistPlanetToPlayer == 0))
-							{
-								relDistPlanetToPlayer = relDistance;
-								closestPlanetToPlayer = bodies[sB];
-								clossetPlanetMass = bodies[sB].rigidbody.mass;
-								Debug.Log (bodies[sB].name);
-							}
-						}
-
+				
 						forceDueToGrav = (bodies[fB].rigidbody.mass * bodies[sB].rigidbody.mass) 
 							* gForceAmp;
 
@@ -895,33 +892,6 @@ public class SpaceManager : MonoBehaviour
 			}
 
 			sStart = 0;
-
-//			start = finish;
-//
-//			if(finish >= bodies.Count) //If at the end of list
-//			{
-//				start = 0;
-//
-//				if(bodies.Count < step)
-//				{
-//					finish = bodies.Count;
-//				}
-//				else
-//				{
-//					finish = step;
-//				}
-//			}
-//			else
-//			{
-//				if(finish + step < bodies.Count)
-//				{
-//					finish += step;
-//				}
-//				else
-//				{
-//					finish = bodies.Count;
-//				}
-//			}
 		}
 
 		fStart = 0;
@@ -1039,6 +1009,10 @@ public class SpaceManager : MonoBehaviour
 		case BodyType.Ring:
 
 			return "Ring";
+
+		case BodyType.BlackHole:
+			
+			return "B.Hole";
 
 		default:
 
