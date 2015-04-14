@@ -275,7 +275,6 @@ public class SpaceManager : MonoBehaviour
 
 			Debug.Log ("Spawning Black Hole");
 			bodies.Add(Instantiate(BlackHoleTemplate, pos, Quaternion.identity) as SpaceObject);
-
 			break;
 		}
 
@@ -805,16 +804,10 @@ public class SpaceManager : MonoBehaviour
 					break;
 				}
 
-				if(fB < sB && (bodies[fB].canOrbit(bodies[sB]) || bodies[sB].canOrbit(bodies[fB])))
+				if(fB < sB && (bodies[fB].canOrbit(bodies[sB], relDistance) 
+				               || bodies[sB].canOrbit(bodies[fB], relDistance)))
 				{	
 					comparisons ++;
-
-//					if(bodies[fB].name == "Moon" || bodies[sB].name == "Moon")
-//					{
-//						Debug.Log (bodies[fB].name + " " + bodies[sB].name);
-//					}
-					//					Debug.Log ("fB + sB: " + fB + sB);
-					//Find vector from first body to second body
 
 					deltaPosition = bodies[sB].transform.position - bodies[fB].transform.position;
 					//Debug.Log ("deltaPosition: " + deltaPosition.ToString());
@@ -852,7 +845,7 @@ public class SpaceManager : MonoBehaviour
 
 						forceDueToGrav/= (relDistance);
 						
-						if(bodies[fB].canOrbit(bodies[sB]))
+						if(bodies[fB].canOrbit(bodies[sB], relDistance))
 						{
 							if(bodies[fB].orbitTarget && bodies[fB].orbitTarget == bodies[sB])
 							{
@@ -862,7 +855,7 @@ public class SpaceManager : MonoBehaviour
 						}
 
 
-						if(bodies[sB].canOrbit(bodies[fB]))
+						if(bodies[sB].canOrbit(bodies[fB], relDistance))
 						{
 							if(bodies[sB].orbitTarget && bodies[sB].orbitTarget == bodies[fB])
 							{

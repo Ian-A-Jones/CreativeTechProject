@@ -12,7 +12,7 @@ public class SpaceObject : MonoBehaviour
 	float speedAmp =  25, distanceAmp = 75;
 	//IF a SpaceObject has an orbit target then it will only be affected by it's Gravity
 	public SpaceObject orbitTarget = null;
-	public bool orbitOn = true;
+	public static bool orbitOn = true;
 	public float orbitDistance;
 
 	public float avgOrbitVelocity;
@@ -135,19 +135,15 @@ public class SpaceObject : MonoBehaviour
 		}
 	}
 
-	public bool canOrbit(SpaceObject otherSObj)
+	public bool canOrbit(SpaceObject otherSObj, float sqrDist)
 	{
-		if(orbitOn && orbitTarget == null || orbitTarget == otherSObj || otherSObj.bType == BodyType.BlackHole)
-			//|| Vector3.Distance(this.transform.position, otherSObj.transform.position) < 25
+		if(orbitOn && orbitTarget == null || orbitTarget == otherSObj 
+		   || sqrDist < Mathf.Pow(this.rigidbody.mass, 2) || otherSObj.bType == BodyType.BlackHole)
 		{
-//			if(this.name == "Moon")
-//				Debug.Log (this.name + " can orbit " + otherSObj.name);
 			return true;
 		}
 		else
 		{
-//			if(this.name == "Moon")
-//				Debug.Log(this.name + " cannot orbit " + otherSObj.name);
 			return false;
 		}
 	}
@@ -277,7 +273,6 @@ public class SpaceObject : MonoBehaviour
 	{
 		while(this.enabled)
 		{
-
 			if(orbitTarget && bMaintainOrbit)
 			{
 				//Calculate appropriates values
@@ -310,17 +305,8 @@ public class SpaceObject : MonoBehaviour
 					break;
 					
 				case BodyType.planet:
-					
-					rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp  * Time.deltaTime);
-					break;
-					
-				case BodyType.Sun:
-					
-					rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp  * Time.deltaTime);
-					break;
-					
 				case BodyType.BlackHole:
-					
+				case BodyType.Sun:
 					rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp  * Time.deltaTime);
 					break;
 				}
@@ -347,7 +333,6 @@ public class SpaceObject : MonoBehaviour
 
 				case BodyType.Ring:
 					yield return new WaitForSeconds(0.5f);
-//					yield return null;
 					break;
 
 				case BodyType.BlackHole:
