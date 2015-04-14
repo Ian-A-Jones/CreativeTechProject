@@ -37,6 +37,11 @@ public class SpaceObject : MonoBehaviour
 
 	static bool drawTrail;
 
+	//Variables for finding orbit speeds
+	float semiMajorAxis;
+	float orbitVelocity;
+	float OrbitPeriod;
+
 	public void init(string name, BodyType _BType, float mass, float diam, SpaceObject _OrbitTarget, float orbitPeriod)
 	{
 		this.name = name;
@@ -48,24 +53,24 @@ public class SpaceObject : MonoBehaviour
 		//Orbit Target logic
 		if(_OrbitTarget != null)
 		{
-			this.rigidbody.drag = 0.1f;
+			rigidbody.drag = 0.1f;
 			//Make it larger
 			GetComponentInChildren<MeshRenderer>().transform.localScale *= oTScale;
 			
-			this.orbitDistance = Vector3.Distance(this.transform.position, _OrbitTarget.transform.position);
+			orbitDistance = Vector3.Distance(transform.position, _OrbitTarget.transform.position);
 			
 //			Debug.Log (this.name + " is going to oribit " + _OrbitTarget.name);
-			this.orbitTarget = _OrbitTarget;	
+			orbitTarget = _OrbitTarget;	
 			
 			
 			//			thsis.transform.parent = orbitTarget.transform;
 			
-			float diff = Mathf.Abs(this.rigidbody.mass - _OrbitTarget.rigidbody.mass);
+			float diff = Mathf.Abs(rigidbody.mass - _OrbitTarget.rigidbody.mass);
 			
 //			Debug.Log ("Mass difference of " + name + " and " + _OrbitTarget.name + ": " + diff);
 
-			this.avgOrbitVelocity = this.findSimpleOrbitVelocity(_OrbitTarget, orbitPeriod);
-			
+			avgOrbitVelocity = findSimpleOrbitVelocity(_OrbitTarget, orbitPeriod);
+
 //			Debug.Log ("Avg V : " + avgOrbitVelocity);
 			
 //			calcTrail(orbitDistance, avgOrbitVelocity);
@@ -78,7 +83,7 @@ public class SpaceObject : MonoBehaviour
 
 			if(_OrbitTarget.orbitTarget)
 			{
-				distanceAmp = 1000;
+//				distanceAmp = 1000;
 			}
 
 		}
@@ -189,11 +194,11 @@ public class SpaceObject : MonoBehaviour
 	{
 //		Debug.Log ("Simple OV equation");
 
-		float semiMajorAxis = Vector3.Distance(this.transform.position, otherBody.transform.position);
+		semiMajorAxis = Vector3.Distance(this.transform.position, otherBody.transform.position);
 		
-		float orbitVelocity = 2*Mathf.PI*semiMajorAxis;
+		orbitVelocity = 2*Mathf.PI*semiMajorAxis;
 		
-		float OrbitPeriod = Mathf.Pow(semiMajorAxis,3);
+		OrbitPeriod = Mathf.Pow(semiMajorAxis,3);
 
 		OrbitPeriod /= (otherBody.rigidbody.mass * SpaceManager.gForceAmp);	
 		OrbitPeriod = Mathf.Sqrt(OrbitPeriod);
@@ -213,11 +218,11 @@ public class SpaceObject : MonoBehaviour
 	{
 //		Debug.Log ("Simple OV equation");
 		
-		float semiMajorAxis = Vector3.Distance(this.transform.position, otherBody.transform.position);
+		semiMajorAxis = Vector3.Distance(this.transform.position, otherBody.transform.position);
 		
-		float orbitVelocity = 2*Mathf.PI*semiMajorAxis;
+		orbitVelocity = 2*Mathf.PI*semiMajorAxis;
 		
-		float OrbitPeriod = Mathf.Pow(semiMajorAxis,3);
+		OrbitPeriod = Mathf.Pow(semiMajorAxis,3);
 		
 		OrbitPeriod /= (otherBody.rigidbody.mass);	
 		OrbitPeriod = Mathf.Sqrt(OrbitPeriod);
