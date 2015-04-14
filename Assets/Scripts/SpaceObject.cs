@@ -80,12 +80,6 @@ public class SpaceObject : MonoBehaviour
 				speedAmp = 1;
 				distanceAmp = 100;
 			}
-
-			if(_OrbitTarget.orbitTarget)
-			{
-//				distanceAmp = 1000;
-			}
-
 		}
 	}
 
@@ -106,9 +100,11 @@ public class SpaceObject : MonoBehaviour
 	{
 //		if(bType != BodyType.Ring)
 //		{
-		StartCoroutine(maintainOrbit());
-		rigidbody.AddTorque(Vector3.up * 10);
-//		}
+		if(orbitTarget)
+		{
+			StartCoroutine(maintainOrbit());
+			rigidbody.AddTorque(Vector3.up * 10);
+		}
 	}
 
 	void calcTrail()
@@ -120,7 +116,7 @@ public class SpaceObject : MonoBehaviour
 
 	void Update()
 	{
-		rigidbody.velocity =  Vector3.ClampMagnitude(rigidbody.velocity, 200);
+		rigidbody.velocity = Vector3.ClampMagnitude(rigidbody.velocity, 200);
 
 		if(Input.GetKeyDown(KeyCode.T) && bType != BodyType.Ring)
 		{
@@ -134,10 +130,10 @@ public class SpaceObject : MonoBehaviour
 
 	void FixedUpdate()
 	{
-		if(orbitTarget)
-		{
+//		if(orbitTarget)
+//		{
 //			Debug.Log ("Maintaning Orbit");
-		}
+//		}
 	}
 
 	public bool canOrbit(SpaceObject otherSObj, float sqrDist)
@@ -145,6 +141,7 @@ public class SpaceObject : MonoBehaviour
 		if(orbitOn && orbitTarget == null || orbitTarget == otherSObj 
 		   || sqrDist < Mathf.Pow(this.rigidbody.mass, 2) || otherSObj.bType == BodyType.BlackHole)
 		{
+//			Debug.Log ("yes");
 			return true;
 		}
 		else
@@ -312,6 +309,7 @@ public class SpaceObject : MonoBehaviour
 				case BodyType.planet:
 				case BodyType.BlackHole:
 				case BodyType.Sun:
+
 					rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp  * Time.deltaTime);
 					break;
 				}
@@ -320,6 +318,7 @@ public class SpaceObject : MonoBehaviour
 				{
 					Debug.Log ("Breaking Orbit of: " + name);
 					orbitTarget = null;
+					StopCoroutine("maintainOrbit");
 					rigidbody.drag = 0;
 				}	
 

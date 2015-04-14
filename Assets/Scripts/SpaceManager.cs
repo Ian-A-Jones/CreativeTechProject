@@ -11,7 +11,7 @@ public class SpaceManager : MonoBehaviour
 	public float posRange;
 
 	//Gravity Scalar
-	public static float gForceAmp = 200;
+	public static float gForceAmp = 500;
 
 	//Prefab used for spawning planets
 	public SpaceObject planetTemplate;
@@ -80,7 +80,6 @@ public class SpaceManager : MonoBehaviour
 	SpaceObject spawnOrbitTarget;
 
 	List<SpaceObject> bodies;
-	public List<SpaceObject> inVoid; //Bodies that have been placed into void via wormHole
 	
 	//Variables for Inter-planetary interaction
 	Vector3 deltaPosition;
@@ -124,7 +123,6 @@ public class SpaceManager : MonoBehaviour
 		SpawnPosCylinder = temp[0] as GameObject;
 
 		bodies = new List<SpaceObject>();
-		inVoid = new List<SpaceObject>();
 
 		spawnBody("Sun", BodyType.Sun, Vector3.zero, PStats.SunMass, PStats.SunDiam, null, 1);
 
@@ -134,7 +132,7 @@ public class SpaceManager : MonoBehaviour
 
 		spawnBody("Earth", BodyType.planet, new Vector3(PStats.EarthDist, 0, 0), PStats.EarthMass, PStats.EarthDiam, bodies[0], 1);
 
-		spawnBody("Moon", BodyType.planet, new Vector3(PStats.MoonDist, 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1], 10);
+		spawnBody("Moon", BodyType.planet, new Vector3(PStats.MoonDist, 0, 0), PStats.MoonMass, PStats.MoonDiam, bodies[bodies.Count-1], 20);
 
 		spawnBody("Mars", BodyType.planet, new Vector3(PStats.MarsDist, 0, 0), PStats.MarsMass, PStats.MarsDiam, bodies[0], 1);
 
@@ -150,7 +148,7 @@ public class SpaceManager : MonoBehaviour
 
 		spawnBody("Pluto", BodyType.planet, new Vector3(PStats.PlutoDist, 0, 0), PStats.PlutoMass, PStats.PlutoDiam, bodies[0], 1);
 
-//		spawnRing("AstBelt", Vector3.zero, PStats.AstMass, PStats.EarthDiam, bodies[0], 1, 336, 150, 150);
+		spawnRing("AstBelt", Vector3.zero, PStats.AstMass, PStats.EarthDiam, bodies[0], 1, 336, 150, 150);
 
 //		spawnRing("JupitersBelt", new Vector3(PStats.JupiterDist, 0, 0), PStats.AstMass, PStats.EarthDiam, bodies[7], 3, 30, 25, 10);
 //
@@ -202,11 +200,14 @@ public class SpaceManager : MonoBehaviour
 			float randY = Random.Range(-posRange, posRange);
 			float randZ = Random.Range(-posRange, posRange);	
 
-			bodies.Add(Instantiate(planetTemplate, new Vector3(randX, randY, randZ), Quaternion.identity) as SpaceObject);
+			spawnBody("body" + (bodies.Count), BodyType.planet, new Vector3(randX, randY, randZ), 1, 1, null, 1);
 
-			bodies[bodies.Count-1].name = "body" + (bodies.Count-1);
+//			bodies.Add(Instantiate(planetTemplate, new Vector3(randX, randY, randZ), Quaternion.identity) as SpaceObject);
+//
+//			bodies[bodies.Count-1].name = "body" + (bodies.Count-1);
 
 			shuffleMass(bodies.Count-1);
+
 //			setMass(bodies.Count-1, 0.9f);
 
 //			float velRange = 2500;
@@ -227,11 +228,6 @@ public class SpaceManager : MonoBehaviour
 
 		//Start with absorbing off
 		AbsorbOnCollision.absorbOn = false;
-	}
-
-	void bodyType(BodyType bType, Vector3 pos)
-	{
-
 	}
 
 	void spawnBody(string _Name, BodyType bType, Vector3 pos, float mass, float diam, SpaceObject _OrbitTarget, 
@@ -828,51 +824,48 @@ public class SpaceManager : MonoBehaviour
 					deltaPosition = bodies[sB].transform.position - bodies[fB].transform.position;
 					//Debug.Log ("deltaPosition: " + deltaPosition.ToString());
 
-//					if(deltaPosition.sqrMagnitude > (bodies[fB].transform.localScale.x/2 + bodies[sB].transform.localScale.x/2))
-//					{
-						direction = Vector3.Normalize(deltaPosition);
-						//Debug.Log("direction: " + direction.ToString());
-						
-						//Find the position of the edge of the body to draw the ray
+					direction = Vector3.Normalize(deltaPosition);
+					//Debug.Log("direction: " + direction.ToString());
+					
+					//Find the position of the edge of the body to draw the ray
 //						edgeOfFirstBody = direction * (bodies[fB].transform.localScale.x/2);
-						//Debug.DrawRay(bodies[fB].transform.position + edgeOfFirstBody, direction, Color.red);
-						
-						//Find the position of the edge of the body for the second body;
+					//Debug.DrawRay(bodies[fB].transform.position + edgeOfFirstBody, direction, Color.red);
+					
+					//Find the position of the edge of the body for the second body;
 //						edgeOfSecondBody = direction * (bodies[sB].transform.localScale.x/2);
-						//Debug.DrawRay(bodies[sB].transform.position + edgeOfSecondBody, direction, Color.red);
-						
-						relDistance = deltaPosition.sqrMagnitude;
-						//Debug.Log ("Square Radius: " + relDistance);
-				
-						forceDueToGrav = (bodies[fB].rigidbody.mass * bodies[sB].rigidbody.mass) 
-							* gForceAmp;
+					//Debug.DrawRay(bodies[sB].transform.position + edgeOfSecondBody, direction, Color.red);
+					
+					relDistance = deltaPosition.sqrMagnitude;
+					//Debug.Log ("Square Radius: " + relDistance);
+			
+					forceDueToGrav = (bodies[fB].rigidbody.mass * bodies[sB].rigidbody.mass);
 
-						forceDueToGrav/= (relDistance);
+					forceDueToGrav/= (relDistance);
+
+					forceDueToGrav *= gForceAmp;
+
+//					Debug.Log (forceDueToGrav * Time.deltaTime);
 						
-						if(bodies[fB].canOrbit(bodies[sB], relDistance))
+					if(bodies[fB].canOrbit(bodies[sB], relDistance))
+					{
+						if(bodies[fB].orbitTarget && bodies[fB].orbitTarget == bodies[sB])
 						{
-							if(bodies[fB].orbitTarget && bodies[fB].orbitTarget == bodies[sB])
-							{
-								bodies[fB].directionToOrbitTarget = direction;
-							}
-							bodies[fB].rigidbody.AddForce(direction * forceDueToGrav * Time.deltaTime);
+							bodies[fB].directionToOrbitTarget = direction;
+						}
+						bodies[fB].rigidbody.AddForce(direction * forceDueToGrav * Time.deltaTime);
+
+					}
+
+
+					if(bodies[sB].canOrbit(bodies[fB], relDistance))
+					{
+						if(bodies[sB].orbitTarget && bodies[sB].orbitTarget == bodies[fB])
+						{
+							bodies[sB].directionToOrbitTarget = direction * -1;
 						}
 
-
-						if(bodies[sB].canOrbit(bodies[fB], relDistance))
-						{
-							if(bodies[sB].orbitTarget && bodies[sB].orbitTarget == bodies[fB])
-							{
-								bodies[sB].directionToOrbitTarget = direction * -1;
-							}
-
-							bodies[sB].rigidbody.AddForce(direction * -1 * forceDueToGrav * Time.deltaTime);
-						}
-//					}
-//					else
-//					{
-////						Debug.Log("Error");
-//					}
+					bodies[sB].rigidbody.AddForce(direction * -1 * forceDueToGrav  * Time.deltaTime);
+					}
 
 					if(comparisons >= step)
 					{
@@ -933,7 +926,7 @@ public class SpaceManager : MonoBehaviour
 			bodies[body].rigidbody.mass = randomMass;
 //		}
 
-		bodies[body].transform.localScale = new Vector3((randomMass), (randomMass), (randomMass));
+		bodies[body].transform.localScale = new Vector3((randomMass)/10, (randomMass)/10, (randomMass)/10);
 	}
 
 	public void removeBodyAt(int iD)
