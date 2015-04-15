@@ -1,4 +1,5 @@
-﻿public enum BodyType
+﻿//Enum for different body types
+public enum BodyType
 {
 	planet,
 	Sun,

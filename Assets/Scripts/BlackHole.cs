@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿//Simple script for removing objects that touch a black hole
+using UnityEngine;
 using System.Collections;
 
 public class BlackHole : MonoBehaviour {
@@ -7,6 +8,7 @@ public class BlackHole : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
+		//Find spaceManager using Tags
 		sM = GameObject.FindGameObjectWithTag("Space Manager").GetComponent<SpaceManager>();
 	}
 	
@@ -17,23 +19,18 @@ public class BlackHole : MonoBehaviour {
 
 	void collisionLogic(Collision collision)
 	{
-//		Debug.Log ("Collided");
+		//Removed collided object
 		sM.removeBodyAt(collision.transform.GetInstanceID());
-
-//		Debug.Log (collision.transform.GetInstanceID());
 	}
 
+	//Events called when objects collide with Black Hole
 	void OnCollisionEnter(Collision collision)
 	{
-//		Debug.Log ("Collided");
-
 		collisionLogic(collision);
 	}
 	
 	void OnCollisionStay(Collision collision)
 	{
-//		Debug.Log ("Collided");
-
 		collisionLogic(collision);
 	}
 }

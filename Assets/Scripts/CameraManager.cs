@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿//Script to manage both cameras
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 

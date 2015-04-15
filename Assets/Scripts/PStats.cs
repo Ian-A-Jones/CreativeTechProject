@@ -1,16 +1,9 @@
-﻿using UnityEngine;
+﻿//Static class for stats of model of Solar System
+using UnityEngine;
 using System.Collections;
 
 public static class PStats
 {
-	public static float AUScaling = 100;
-
-	public static float DistScale = 1f;
-
-	public const float REALEARTHMASS = 5679.6f;
-
-	public const int TOMETRES = 1000;
-
 	#region Diameter (Km) - Planets and Moons
 
 	public static float SunDiam 	= 46.5f; //46.5
@@ -79,20 +72,4 @@ public static class PStats
 
 
 	#endregion 
-
-	//Earth Units = Any unit in Km/Earth's Diameter
-	public static float inAUnits(float val)
-	{
-		return (val/0149600000) * AUScaling * DistScale;
-	}
-
-	public static float inEUnits(float val)
-	{
-		return (val/(EarthDiam * AUScaling));
-	}
-
-	public static float temp(float val)
-	{
-		return val /= 33300;
-	}
 }

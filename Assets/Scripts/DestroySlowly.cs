@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿//Script that slowly shrinkts object and then destroys it
+using UnityEngine;
 using System.Collections;
 
 public class DestroySlowly : MonoBehaviour {

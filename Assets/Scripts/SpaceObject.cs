@@ -1,24 +1,28 @@
+//Script for space objects or bodies used in Sim
 using UnityEngine;
 using System.Collections;
 
 public class SpaceObject : MonoBehaviour 
 {
 	//Member Variables
-	//Maximum masss a body can Have
-	public static int maxMass = 50;
-	static float pScale = 1, rScale = 1, sScale = 1;
-	static float meshScale = 10;
-	static float oTScale = 1;
+
+	//Scaled for different body types
+	static float pScale = 2, rScale = 1.5f, sScale = 1;
+
+	//Whether or not space Object can orbit
+	public static bool orbitOn = true;
+	
+	//Amplication values for Speed and distance spring
 	float speedAmp =  25, distanceAmp = 75;
+
 	//IF a SpaceObject has an orbit target then it will only be affected by it's Gravity
 	public SpaceObject orbitTarget = null;
-	public static bool orbitOn = true;
-	public float orbitDistance;
 
+	//distance from Orbit target and average speed to be maintained while orbitting
+	public float orbitDistance;
 	public float avgOrbitVelocity;
 
-	float minOrbitP, maxOrbitP;
-
+	//Variables used in springs
 	public float speed;
 	public Vector3 deltaPosition;
 	public float brakeSpeed;
@@ -26,15 +30,18 @@ public class SpaceObject : MonoBehaviour
 	public Vector3 brakeVelocity;
 	public float acclSpeed;
 	public float distance;
-
-	public Vector3 directionToOrbitTarget;
-
 	public float diff;
 
+	//Direction to orbit taget 
+	public Vector3 directionToOrbitTarget;
+
+	//Whether object should maintain it's orbit
 	public static bool bMaintainOrbit = true;
 
+	//Body type of said spaceObject 
 	BodyType bType;
 
+	//Whether trails should be drawn
 	static bool drawTrail;
 
 	//Variables for finding orbit speeds
@@ -42,6 +49,7 @@ public class SpaceObject : MonoBehaviour
 	float orbitVelocity;
 	float OrbitPeriod;
 
+	//Function used to set up body using given variables
 	public void init(string name, BodyType _BType, float mass, float diam, SpaceObject _OrbitTarget, float orbitPeriod)
 	{
 		this.name = name;
@@ -53,28 +61,17 @@ public class SpaceObject : MonoBehaviour
 		//Orbit Target logic
 		if(_OrbitTarget != null)
 		{
+			//Drag aids in when using Orbit targets, this will be set to zero if Orbit target is broken
 			rigidbody.drag = 0.1f;
-			//Make it larger
-			GetComponentInChildren<MeshRenderer>().transform.localScale *= oTScale;
 			
 			orbitDistance = Vector3.Distance(transform.position, _OrbitTarget.transform.position);
-			
-//			Debug.Log (this.name + " is going to oribit " + _OrbitTarget.name);
-			orbitTarget = _OrbitTarget;	
-			
-			
-			//			thsis.transform.parent = orbitTarget.transform;
-			
-			float diff = Mathf.Abs(rigidbody.mass - _OrbitTarget.rigidbody.mass);
-			
-//			Debug.Log ("Mass difference of " + name + " and " + _OrbitTarget.name + ": " + diff);
 
+			orbitTarget = _OrbitTarget;	
+
+			//Calulate orbit Velocity for spaceObject With a amplification variables
 			avgOrbitVelocity = findSimpleOrbitVelocity(_OrbitTarget, orbitPeriod);
 
-//			Debug.Log ("Avg V : " + avgOrbitVelocity);
-			
-//			calcTrail(orbitDistance, avgOrbitVelocity);
-
+			//Special amp values for springs if using rings
 			if(bType == BodyType.Ring)
 			{
 				speedAmp = 1;
@@ -83,6 +80,7 @@ public class SpaceObject : MonoBehaviour
 		}
 	}
 
+	//Simpler initalise function for firing planets
 	public void init(string _Name, BodyType _BType, float mass, float diam, float velocity)
 	{
 		name = _Name;
@@ -98,8 +96,7 @@ public class SpaceObject : MonoBehaviour
 
 	public void Start()
 	{
-//		if(bType != BodyType.Ring)
-//		{
+		//If an orbit target has been set then give object spin
 		if(orbitTarget)
 		{
 			StartCoroutine(maintainOrbit());
@@ -107,18 +104,21 @@ public class SpaceObject : MonoBehaviour
 		}
 	}
 
+	//Functuoin that calculates trail based off of orbit target
 	void calcTrail()
 	{
-			GetComponentInChildren<TrailRenderer>().time = 2*Mathf.PI*distance/speed; //Magic number translated speed of object into a estimated time for trail to appear
-			GetComponentInChildren<TrailRenderer>().startWidth = transform.localScale.x;
-			GetComponentInChildren<TrailRenderer>().endWidth = transform.localScale.x*transform.localScale.x/10; //Half size to make end obvious
+		GetComponentInChildren<TrailRenderer>().time = 2*Mathf.PI*distance/speed; //Magic number translated speed of object into a estimated time for trail to appear
+		GetComponentInChildren<TrailRenderer>().startWidth = transform.localScale.x;
+		GetComponentInChildren<TrailRenderer>().endWidth = transform.localScale.x*transform.localScale.x/10; //Half size to make end obvious
 	}
 
 	void Update()
 	{
+		//Clamp speed to help prevent object from moving too fast
 		rigidbody.velocity = Vector3.ClampMagnitude(rigidbody.velocity, 200);
 
-		if(Input.GetKeyDown(KeyCode.T) && bType != BodyType.Ring)
+		//Toggle trail of SpaceObjects
+		if(Input.GetKeyDown(KeyCode.T))
 		{
 			if(GetComponentInChildren<TrailRenderer>())
 			{
@@ -130,18 +130,18 @@ public class SpaceObject : MonoBehaviour
 
 	void FixedUpdate()
 	{
-//		if(orbitTarget)
+//		0if(orbitTarget)
 //		{
-//			Debug.Log ("Maintaning Orbit");
+//			maintainOrbit();
 //		}
 	}
 
+	//Function to decide if object can orbit another
 	public bool canOrbit(SpaceObject otherSObj, float sqrDist)
 	{
 		if(orbitOn && orbitTarget == null || orbitTarget == otherSObj 
 		   || sqrDist < Mathf.Pow(this.rigidbody.mass, 2) || otherSObj.bType == BodyType.BlackHole)
 		{
-//			Debug.Log ("yes");
 			return true;
 		}
 		else
@@ -150,10 +150,9 @@ public class SpaceObject : MonoBehaviour
 		}
 	}
 
+	//Assigns mass and uses scale values to assign 
 	public void setMassAndSize(float massToSet, float diameter)
 	{
-//		massToSet = Mathf.Clamp(massToSet, 0, maxMass);
-
 		rigidbody.mass = massToSet;
 
 		switch(bType)
@@ -184,164 +183,104 @@ public class SpaceObject : MonoBehaviour
 		return new Vector3(val, val, val);
 	}
 
-	/*This function uses the calculation for mean orbital speed with a small eccentricity orbit to calculate what 
-	Velocity is required for orbit. This function should be used when the masses of the two bodies are similar
-	 e.g. Moon and Earth*/
-	public float findSimpleOrbitVelocity(SpaceObject otherBody)
+	//This function uses the calculation for mean orbital speed 
+	public float findSimpleOrbitVelocity(SpaceObject obj)
 	{
-//		Debug.Log ("Simple OV equation");
-
-		semiMajorAxis = Vector3.Distance(this.transform.position, otherBody.transform.position);
+		semiMajorAxis = Vector3.Distance(this.transform.position, obj.transform.position);
 		
 		orbitVelocity = 2*Mathf.PI*semiMajorAxis;
 		
 		OrbitPeriod = Mathf.Pow(semiMajorAxis,3);
-
-		OrbitPeriod /= (otherBody.rigidbody.mass * SpaceManager.gForceAmp);	
+		OrbitPeriod /= (obj.rigidbody.mass * SpaceManager.gForceAmp);	
 		OrbitPeriod = Mathf.Sqrt(OrbitPeriod);
-
 		OrbitPeriod *= 2*Mathf.PI;
 		
-//		Debug.Log ("Orbit period: " + OrbitPeriod);
-		
 		orbitVelocity /=OrbitPeriod;
-
-//		Debug.Log ("Orbit velocity: " + orbitVelocity);
 	
 		return orbitVelocity;
 	}
 
-	public float findSimpleOrbitVelocity(SpaceObject otherBody, float force)
+	//Same function as before but with amplifcation value
+	public float findSimpleOrbitVelocity(SpaceObject obj, float force)
 	{
-//		Debug.Log ("Simple OV equation");
-		
-		semiMajorAxis = Vector3.Distance(this.transform.position, otherBody.transform.position);
+		semiMajorAxis = Vector3.Distance(this.transform.position, obj.transform.position);
 		
 		orbitVelocity = 2*Mathf.PI*semiMajorAxis;
 		
 		OrbitPeriod = Mathf.Pow(semiMajorAxis,3);
-		
-		OrbitPeriod /= (otherBody.rigidbody.mass);	
-		OrbitPeriod = Mathf.Sqrt(OrbitPeriod);
-		
+		OrbitPeriod /= (obj.rigidbody.mass);	
+		OrbitPeriod = Mathf.Sqrt(OrbitPeriod);		
 		OrbitPeriod *= 2*Mathf.PI;
-		
-//		Debug.Log ("Orbit period: " + OrbitPeriod);
 		
 		orbitVelocity /= (OrbitPeriod/ force);
 		
-//		Debug.Log ("Orbit velocity: " + orbitVelocity);
-		
 		return orbitVelocity;
 	}
 
-//	public float findSimpleOrbitVelocity(SpaceObject otherBody, float orbitPeriod)
-//	{
-//		Debug.Log ("Simple OV equation");
-//		
-//		float semiMajorAxis = Vector3.Distance(this.transform.position, otherBody.transform.position);
-//		
-//		float orbitVelocity = 2*Mathf.PI*semiMajorAxis;
-//
-//		Debug.Log ("Orbit period: " + orbitPeriod);
-//		
-//		orbitVelocity /= (orbitPeriod/3.6f);
-//		
-//		Debug.Log ("Orbit velocity: " + orbitVelocity);
-//
-//		return orbitVelocity;
-//	}
-
-	/*Similar to the above function this finds the orbital speed of a body but is used when the masses are Vastly 
-	  different e.g. Sun and Earth*/
-	public float findOVWithMass(SpaceObject otherBody)
-	{
-//		Debug.Log ("Complex OV equation");
-
-		float OrbitVelocity = this.rigidbody.mass + otherBody.rigidbody.mass;
-		
-		OrbitVelocity *= SpaceManager.gForceAmp;
-		
-		OrbitVelocity /= Vector3.Distance(this.transform.position, otherBody.transform.position);
-		
-		OrbitVelocity = Mathf.Sqrt(OrbitVelocity);
-		
-//		Debug.Log ("Orbit Velocity: " + OrbitVelocity);
-		
-		return OrbitVelocity;
-	}
-	
 	public IEnumerator maintainOrbit()
 	{
-		while(this.enabled)
+		while(enabled && orbitTarget)
 		{
-			if(orbitTarget && bMaintainOrbit)
+			//Calculate appropriates values
+			speed = rigidbody.velocity.magnitude;
+			
+			deltaPosition = this.transform.position - orbitTarget.transform.position;
+
+			distance = deltaPosition.magnitude;
+
+			diff = orbitDistance - distance;
+
+			deltaPosition.Normalize();
+
+			//Speed spring
+			rigidbody.AddForce(new Vector3(directionToOrbitTarget.z * -1, 0, directionToOrbitTarget.x) * 
+			                   (avgOrbitVelocity - speed) * speedAmp * Time.deltaTime);
+			
+			rigidbody.velocity = Vector3.ClampMagnitude(rigidbody.velocity, avgOrbitVelocity * 7f);
+
+			//Distance spring
+			switch(bType)
 			{
-				//Calculate appropriates values
-				speed = rigidbody.velocity.magnitude;  // test current object speed
+			case BodyType.Ring:
 				
-				deltaPosition = this.transform.position - orbitTarget.transform.position;
-
-				distance = deltaPosition.magnitude;
-
-				diff = orbitDistance - distance;
-
-				if(distance < 0)
-				{
-					Debug.Log ("Wrong");
-				}
-
-				deltaPosition.Normalize();
-
-				//Speed spring
-				rigidbody.AddForce(new Vector3(directionToOrbitTarget.z * -1, 0, directionToOrbitTarget.x) * (avgOrbitVelocity - speed) * speedAmp * Time.deltaTime);
+				rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp/4  * Time.deltaTime);
+				break;
 				
-				rigidbody.velocity = Vector3.ClampMagnitude(rigidbody.velocity, avgOrbitVelocity * 7f);
+			case BodyType.planet:
+			case BodyType.BlackHole:
+			case BodyType.Sun:
 
-				//Distance spring
-				switch(bType)
-				{
-				case BodyType.Ring:
-					
-					rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp/4  * Time.deltaTime);
-					break;
-					
-				case BodyType.planet:
-				case BodyType.BlackHole:
-				case BodyType.Sun:
-
-					rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp  * Time.deltaTime);
-					break;
-				}
-
-				if((distance > 1.3f * orbitDistance || distance < 0.7f * orbitDistance) && orbitTarget)
-				{
-					Debug.Log ("Breaking Orbit of: " + name);
-					orbitTarget = null;
-					StopCoroutine("maintainOrbit");
-					rigidbody.drag = 0;
-				}	
-
-				calcTrail();
+				rigidbody.AddForce(deltaPosition.normalized * diff * distanceAmp  * Time.deltaTime);
+				break;
 			}
+
+			//Breaking of spring
+			if((distance > 1.3f * orbitDistance || distance < 0.7f * orbitDistance) && orbitTarget)
+			{
+				Debug.Log ("Breaking Orbit of: " + name);
+				orbitTarget = null;
+				StopCoroutine("maintainOrbit");
+				rigidbody.drag = 0;
+			}	
+			calcTrail();
 
 			switch(bType)
 			{
-				case BodyType.planet:
-					yield return null;
-					break;
-
-				case BodyType.Sun:
-					yield return null;
-					break;
-
-				case BodyType.Ring:
-					yield return new WaitForSeconds(0.5f);
-					break;
-
-				case BodyType.BlackHole:
-					yield return null;
-					break;
+			case BodyType.planet:
+				yield return null;
+				break;
+				
+			case BodyType.Sun:
+				yield return null;
+				break;
+				
+			case BodyType.Ring:
+				yield return null;
+				break;
+				
+			case BodyType.BlackHole:
+				yield return null;
+				break;
 			}
 		}
 	}
